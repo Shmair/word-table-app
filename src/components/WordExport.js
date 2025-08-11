@@ -21,6 +21,7 @@ const TABLE_CONSTANTS = {
 
 const WordExport = ({ blueTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);
+    const [documentTitle, setDocumentTitle] = useState('');
 
     const base64ToBlob = async (base64) => {
         const response = await fetch(base64);
@@ -71,6 +72,7 @@ const WordExport = ({ blueTableData, redTableData }) => {
                                         new ImageRun({
                                             data: buffer,
                                             transformation: TABLE_CONSTANTS.IMAGE_SIZE,
+                                            alignment: 'center',
                                         }),
                                     ],
                                 }),
@@ -119,8 +121,29 @@ const WordExport = ({ blueTableData, redTableData }) => {
                 sections: [{
                     properties: {},
                     children: [
-                        new Paragraph({ text: "Tables Export", heading: 'Heading1' }),
-                        new Paragraph({ text: "Blue Table", heading: 'Heading2' }),
+                        new Paragraph({ 
+                            text: new Date().toLocaleDateString('en-GB', { 
+                                year: 'numeric', 
+                                month: '2-digit', 
+                                day: '2-digit' 
+                            }),
+                            spacing: {
+                                after: 400
+                            }
+                        }),
+                        new Paragraph({ 
+                            text: documentTitle || "Tables Export", 
+                            heading: 'Heading1', 
+                            alignment: 'center', 
+                            size: 64, 
+                            color: '000000',
+                            spacing: {
+                                after: 400
+                            }}),
+                        new Paragraph({ text: "חתימות מקוריות", heading: 'Heading2', color: 'black', alignment: 'center' , size: 48, 
+                            spacing: {
+                                after: 400
+                            }}),
                         new Table({
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
                             rows: await createTableRows(blueTableData, 'blue'),
@@ -139,7 +162,11 @@ const WordExport = ({ blueTableData, redTableData }) => {
                                 },
                             },
                         }),
-                        new Paragraph({ text: "Red Table", heading: 'Heading2' }),
+                        new Paragraph({ text: "חתימות במחלוקת", heading: 'Heading2' , color: 'black', alignment: 'center', size: 48,  
+                            spacing: {
+                                after: 400,
+                                before: 400
+                            }}),
                         new Table({
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
                             rows: await createTableRows(redTableData, 'red'),
@@ -163,7 +190,8 @@ const WordExport = ({ blueTableData, redTableData }) => {
             });
 
             const buffer = await Packer.toBlob(doc);
-            saveAs(buffer, 'tables-export.docx');
+            const fileName = documentTitle ? `${documentTitle}.docx` : 'tables-export.docx';
+            saveAs(buffer, fileName);
         } catch (error) {
             console.error('Error creating Word document:', error);
             alert('Error creating Word document. Please try again.');
@@ -173,13 +201,22 @@ const WordExport = ({ blueTableData, redTableData }) => {
     };
 
     return (
-        <button 
-            onClick={exportToWord} 
-            disabled={isExporting}
-            style={{ padding: '6px 12px' }}
-        >
-            {isExporting ? 'Exporting...' : 'Export to Word'}
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <input
+                type="text"
+                value={documentTitle}
+                onChange={(e) => setDocumentTitle(e.target.value)}
+                placeholder="Enter document title"
+                style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+            <button 
+                onClick={exportToWord} 
+                disabled={isExporting}
+                style={{ padding: '6px 12px' }}
+            >
+                {isExporting ? 'Exporting...' : 'Export to Word'}
+            </button>
+        </div>
     );
 };
 
