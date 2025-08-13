@@ -1,13 +1,26 @@
 import React, { useState } from 'react';
 import BlueTable from './components/BlueTable';
 import RedTable from './components/RedTable';
-import FileUpload from './components/FileUpload';
+import FileInsert from './components/FileInsert';
 
 const App = () => {
     const [blueTableData, setBlueTableData] = useState([]);
     const [redTableData, setRedTableData] = useState([]);
-
-    const handleFileUpload = (files, tableType) => {
+    const onRemoveImage = (index, table) => {
+        if (table === 'blue') {
+            setBlueTableData(prev => {
+                let newData = [...prev];
+                newData.splice(index, 1);
+                return newData;
+            });
+        } else {
+            setRedTableData(prev => {
+                let newData = [...prev];
+                newData.splice(index, 1);
+                return newData;
+            });
+        }};
+    const handleFileInsert = (files, tableType) => {
         const processFile = (file, index) => {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -51,13 +64,12 @@ const App = () => {
                     });
                 }
             });
-};
-
+};                  
     return (
-        <div>
-            <h1>Word Table App</h1>
-            <FileUpload 
-                onFileUpload={handleFileUpload}
+        <div align="center" style={{ padding: '20px' }}>
+            <h1>חתימות</h1>
+            <FileInsert 
+                onFileInsert={handleFileInsert}
                 blueTableData={blueTableData}
                 redTableData={redTableData}
             />
@@ -76,6 +88,7 @@ const App = () => {
                         return newData;
                     });
                 }}
+                onRemoveBlueImage={(index) => onRemoveImage(index, 'blue')}
             />
             <RedTable 
                 data={redTableData} 
@@ -92,6 +105,7 @@ const App = () => {
                         return newData;
                     });
                 }}
+                onRemoveRedImage={(index) => onRemoveImage(index, 'red')}
             />
         </div>
     );

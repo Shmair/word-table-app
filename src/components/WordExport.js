@@ -1,58 +1,42 @@
 import React, { useState } from 'react';
-import { Document, Packer, Table, TableRow, TableCell, Paragraph, WidthType, ImageRun } from 'docx';
+import { Document, Packer, Table, TableRow, TableCell, Paragraph, WidthType, ImageRun, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 
 const TABLE_CONSTANTS = {
     CELLS_PER_ROW: 2,
-    BORDER_SIZE: 1,
+    BORDER_SIZE: 10,
     BORDER_STYLE: 'single',
-    CELL_WIDTH: 5000,
-    TABLE_WIDTH: 10000,
+    CELL_WIDTH: 4500,
+    TABLE_WIDTH: 9000,
     COLORS: {
-        BLUE: '0000FF',
-        RED: 'FF0000'
+        BLUE: '0070C0',  // Changed to a more standard Word blue
+        RED: 'C00000'    // Changed to a more standard Word red
     },
     IMAGE_SIZE: {
-        width: 150,
-        height: 150
+        width: 200,
+        height: 200
     }
 };
 
-const WordExport = ({ blueTableData, redTableData }) => {
+const WordExport = ({ blueTableData, redTableData, onRemoveBlueImage, onRemoveRedImage }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [documentTitle, setDocumentTitle] = useState('');
 
     const processImage = async (base64) => {
         try {
-            if (!base64) {
-                throw new Error('Image data is empty');
+            const base64Data = base64.split(';base64,').pop();
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+            
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
             }
-
-            if (!base64.includes('base64')) {
-                throw new Error('Invalid image data format');
-            }
-
-            const base64Data = base64.split(',')[1];
-            if (!base64Data) {
-                throw new Error('Could not extract base64 data');
-            }
-
-            let binaryString;
-            try {
-                binaryString = window.atob(base64Data);
-            } catch (e) {
-                throw new Error('Invalid base64 encoding');
-            }
-
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-
-            return bytes.buffer;
+            
+            const byteArray = new Uint8Array(byteNumbers);
+            return byteArray.buffer;
         } catch (error) {
-            console.error('Error processing image:', error.message);
-            throw new Error(`Failed to process image: ${error.message}`);
+            console.error('Error processing image:', error);
+            throw new Error('Failed to process image');
         }
     };
 
@@ -139,39 +123,84 @@ const WordExport = ({ blueTableData, redTableData }) => {
         try {
             setIsExporting(true);
             console.log('Starting document creation...');
+        
+            // Create document with properties
             const doc = new Document({
                 sections: [{
-                    properties: {},
+                    properties: {
+                        page: {
+                            margin: {
+                                top: 1440,
+                                right: 1440,
+                                bottom: 1440,
+                                left: 1440
+                            }
+                        }
+                    },
                     children: [
-                        new Paragraph({ 
-                            children: [{ text: new Date().toLocaleDateString('en-GB'), color: '000000' }],
+                        new Paragraph({
+                            text: new Date().toLocaleDateString('en-GB'),
                             spacing: { after: 400 }
                         }),
-                        new Paragraph({ 
-                            children: [{ text: documentTitle || 'Tables Export', color: '000000' }],
-                            heading: 'Heading1',
+                        new Paragraph({
+                            text: documentTitle || 'Tables Export',
+                            heading: 'Title',
                             alignment: 'center',
                             spacing: { after: 400 }
                         }),
-                        new Paragraph({ 
-                            children: [{ text: 'חתימות מקוריות', color: '000000' }],
-                            heading: 'Heading2',
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: '3חתימות מקוריות',
+                                    size: 32,
+                                    color: '000000',
+                                    bold: true
+                                })
+                            ],
                             alignment: 'center',
-                            spacing: { after: 400 }
+                            spacing: { after: 400 },
+                            bidirectional: true
                         }),
                         new Table({
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                            rows: await createTableRows(blueTableData, 'blue')
+                            rows: await createTableRows(blueTableData, 'blue'),
+                            tableProperties: {
+                                borders: {
+                                    top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE }
+                                }
+                            }
                         }),
-                        new Paragraph({ 
-                            children: [{ text: 'חתימות במחלוקת', color: '000000' }],
-                            heading: 'Heading2',
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: 'חתימות במחלוקת',
+                                    size: 32,
+                                    color: '000000',
+                                    bold: true
+                                })
+                            ],
                             alignment: 'center',
-                            spacing: { before: 400, after: 400 }
+                            spacing: { before: 400, after: 400 },
+                            bidirectional: true
                         }),
                         new Table({
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                            rows: await createTableRows(redTableData, 'red')
+                            rows: await createTableRows(redTableData, 'red'),
+                            tableProperties: {
+                                borders: {
+                                    top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                                    bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                                    left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                                    right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                                    insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                                    insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED }
+                                }
+                            }
                         })
                     ]
                 }]
@@ -208,24 +237,141 @@ const WordExport = ({ blueTableData, redTableData }) => {
         }
     };
 
-    return (
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <input
-                type="text"
-                value={documentTitle}
-                onChange={(e) => setDocumentTitle(e.target.value)}
-                placeholder="Enter document title"
-                style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
-            />
-            <button 
-                onClick={exportToWord} 
-                disabled={isExporting}
-                style={{ padding: '6px 12px' }}
-            >
-                {isExporting ? 'Exporting...' : 'Export to Word'}
-            </button>
+    const tables = (
+        <div style={{ display: 'flex', gap: '20px', direction: 'rtl' }}>
+            <div style={{ flex: 1 }}>
+                <h3 style={{ color: `#${TABLE_CONSTANTS.COLORS.BLUE}`, textAlign: 'center' }}>4חתימות מקוריות</h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse', direction: 'rtl' }}>
+                    <tbody>
+                        {Array(Math.ceil(blueTableData.length / 2)).fill(null).map((_, rowIndex) => (
+                            <tr key={rowIndex}>
+                                {[0, 1].map(colIndex => {
+                                    const index = rowIndex * 2 + colIndex;
+                                    const image = blueTableData[index];
+                                    return (
+                                        <td key={colIndex} style={{
+                                            border: `2px solid #${TABLE_CONSTANTS.COLORS.BLUE}`,
+                                            padding: '10px',
+                                            textAlign: 'center',
+                                            position: 'relative',
+                                            width: '50%',
+                                            height: '150px',
+                                            verticalAlign: 'middle'
+                                        }}>
+                                            {image ? (
+                                                <>
+                                                    <button
+                                                        onClick={() => onRemoveBlueImage(image.number || index + 1)}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '5px',
+                                                            right: '5px',
+                                                            background: '#ff4444',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '50%',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                    <img 
+                                                        src={image.url} 
+                                                        alt={`Image ${image.number || index + 1}`} 
+                                                        style={{ width: '100px', height: '100px', objectFit: 'contain' }} 
+                                                    />
+                                                    <p>#{image.number || index + 1}</p>
+                                                </>
+                                            ) : null}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style={{ flex: 1 }}>
+                <h3 style={{ color: `#${TABLE_CONSTANTS.COLORS.RED}`, textAlign: 'center' }}>חתימות במחלוקת</h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse', direction: 'rtl' }}>
+                    <tbody>
+                        {Array(Math.ceil(redTableData.length / 2)).fill(null).map((_, rowIndex) => (
+                            <tr key={rowIndex}>
+                                {[0, 1].map(colIndex => {
+                                    const index = rowIndex * 2 + colIndex;
+                                    const image = redTableData[index];
+                                    return (
+                                        <td key={colIndex} style={{
+                                            border: `2px solid #${TABLE_CONSTANTS.COLORS.RED}`,
+                                            padding: '10px',
+                                            textAlign: 'center',
+                                            position: 'relative',
+                                            width: '50%',
+                                            height: '150px',
+                                            verticalAlign: 'middle'
+                                        }}>
+                                            {image ? (
+                                                <>
+                                                    <button
+                                                        onClick={() => onRemoveRedImage(image.number || index + 1)}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '5px',
+                                                            right: '5px',
+                                                            background: '#ff4444',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '50%',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                    <img 
+                                                        src={image.url} 
+                                                        alt={`Image ${image.number || index + 1}`} 
+                                                        style={{ width: '100px', height: '100px', objectFit: 'contain' }} 
+                                                    />
+                                                    <p>#{image.number || index + 1}</p>
+                                                </>
+                                            ) : null}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
+
+    return (
+        <div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    value={documentTitle}
+                    onChange={(e) => setDocumentTitle(e.target.value)}
+                    placeholder="Enter document title"
+                    style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <button 
+                    onClick={exportToWord} 
+                    disabled={isExporting || !documentTitle}
+                    style={{ padding: '6px 12px' }}
+                >
+                    {isExporting ? 'Exporting...' : 'Export to Word'}
+                </button>
+            </div>
+        </div>
+    );
+    
 };
 
 export default WordExport;
