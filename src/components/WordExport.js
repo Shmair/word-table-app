@@ -19,9 +19,12 @@ const TABLE_CONSTANTS = {
     }
 };
 
-const WordExport = ({ blueTableData, redTableData }) => {
+const WordExport = ({ blueTableData = [], redTableData = [] }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [documentTitle, setDocumentTitle] = useState('');
+    
+    // Check if there are any images selected in either table
+    const hasImages = (blueTableData.length > 0 || redTableData.length > 0);
 
     const base64ToBlob = async (base64) => {
         const response = await fetch(base64);
@@ -29,11 +32,33 @@ const WordExport = ({ blueTableData, redTableData }) => {
         return blob;
     };
 
-    const createTableRows = async (data, color) => {
+    const createTableRows = async (data = [], color) => {
         const rows = [];
         
         // Convert color names to hex codes
         const colorHex = color === 'blue' ? TABLE_CONSTANTS.COLORS.BLUE : TABLE_CONSTANTS.COLORS.RED;
+        
+        // If no data, create one empty row
+        if (!data || data.length === 0) {
+            const emptyCells = [];
+            for (let j = 0; j < TABLE_CONSTANTS.CELLS_PER_ROW; j++) {
+                emptyCells.push(
+                    new TableCell({
+                        children: [new Paragraph({ text: '' })],
+                        borders: {
+                            top: { style: 'nil', size: 0 },
+                            bottom: { style: 'nil', size: 0 },
+                            left: { style: 'nil', size: 0 },
+                            right: { style: 'nil', size: 0 },
+                        },
+                        width: { size: TABLE_CONSTANTS.CELL_WIDTH, type: WidthType.DXA },
+                        verticalAlign: 'center',
+                    })
+                );
+            }
+            rows.push(new TableRow({ children: emptyCells }));
+            return rows;
+        }
         
         // Create rows from data
         for (let i = 0; i < data.length; i += TABLE_CONSTANTS.CELLS_PER_ROW) {
@@ -211,10 +236,10 @@ const WordExport = ({ blueTableData, redTableData }) => {
             />
             <button 
                 onClick={exportToWord} 
-                disabled={isExporting}
+                disabled={isExporting || !hasImages}
                 style={{ padding: '6px 12px' }}
             >
-                {isExporting ? 'Exporting...' : 'Export to Word'}
+                {isExporting ? 'Exporting...' : hasImages ? 'Export to Word' : 'Select images to export'}
             </button>
         </div>
     );
