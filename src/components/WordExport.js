@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Document, Packer, Table, TableRow, TableCell, Paragraph, WidthType, ImageRun, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 
+
 const TABLE_CONSTANTS = {
     CELLS_PER_ROW: 2,
     BORDER_SIZE: 10,
@@ -18,7 +19,7 @@ const TABLE_CONSTANTS = {
     }
 };
 
-const WordExport = ({ blueTableData, redTableData, onRemoveBlueImage, onRemoveRedImage }) => {
+const WordExport = ({ blueTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [documentTitle, setDocumentTitle] = useState('');
 
@@ -236,120 +237,6 @@ const WordExport = ({ blueTableData, redTableData, onRemoveBlueImage, onRemoveRe
             setIsExporting(false);
         }
     };
-
-    const tables = (
-        <div style={{ display: 'flex', gap: '20px', direction: 'rtl' }}>
-            <div style={{ flex: 1 }}>
-                <h3 style={{ color: `#${TABLE_CONSTANTS.COLORS.BLUE}`, textAlign: 'center' }}>4חתימות מקוריות</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse', direction: 'rtl' }}>
-                    <tbody>
-                        {Array(Math.ceil(blueTableData.length / 2)).fill(null).map((_, rowIndex) => (
-                            <tr key={rowIndex}>
-                                {[0, 1].map(colIndex => {
-                                    const index = rowIndex * 2 + colIndex;
-                                    const image = blueTableData[index];
-                                    return (
-                                        <td key={colIndex} style={{
-                                            border: `2px solid #${TABLE_CONSTANTS.COLORS.BLUE}`,
-                                            padding: '10px',
-                                            textAlign: 'center',
-                                            position: 'relative',
-                                            width: '50%',
-                                            height: '150px',
-                                            verticalAlign: 'middle'
-                                        }}>
-                                            {image ? (
-                                                <>
-                                                    <button
-                                                        onClick={() => onRemoveBlueImage(image.number || index + 1)}
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: '5px',
-                                                            right: '5px',
-                                                            background: '#ff4444',
-                                                            color: 'white',
-                                                            border: 'none',
-                                                            borderRadius: '50%',
-                                                            width: '24px',
-                                                            height: '24px',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    >
-                                                        ×
-                                                    </button>
-                                                    <img 
-                                                        src={image.url} 
-                                                        alt={`Image ${image.number || index + 1}`} 
-                                                        style={{ width: '100px', height: '100px', objectFit: 'contain' }} 
-                                                    />
-                                                    <p>#{image.number || index + 1}</p>
-                                                </>
-                                            ) : null}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            <div style={{ flex: 1 }}>
-                <h3 style={{ color: `#${TABLE_CONSTANTS.COLORS.RED}`, textAlign: 'center' }}>חתימות במחלוקת</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse', direction: 'rtl' }}>
-                    <tbody>
-                        {Array(Math.ceil(redTableData.length / 2)).fill(null).map((_, rowIndex) => (
-                            <tr key={rowIndex}>
-                                {[0, 1].map(colIndex => {
-                                    const index = rowIndex * 2 + colIndex;
-                                    const image = redTableData[index];
-                                    return (
-                                        <td key={colIndex} style={{
-                                            border: `2px solid #${TABLE_CONSTANTS.COLORS.RED}`,
-                                            padding: '10px',
-                                            textAlign: 'center',
-                                            position: 'relative',
-                                            width: '50%',
-                                            height: '150px',
-                                            verticalAlign: 'middle'
-                                        }}>
-                                            {image ? (
-                                                <>
-                                                    <button
-                                                        onClick={() => onRemoveRedImage(image.number || index + 1)}
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: '5px',
-                                                            right: '5px',
-                                                            background: '#ff4444',
-                                                            color: 'white',
-                                                            border: 'none',
-                                                            borderRadius: '50%',
-                                                            width: '24px',
-                                                            height: '24px',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    >
-                                                        ×
-                                                    </button>
-                                                    <img 
-                                                        src={image.url} 
-                                                        alt={`Image ${image.number || index + 1}`} 
-                                                        style={{ width: '100px', height: '100px', objectFit: 'contain' }} 
-                                                    />
-                                                    <p>#{image.number || index + 1}</p>
-                                                </>
-                                            ) : null}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
 
     return (
         <div>

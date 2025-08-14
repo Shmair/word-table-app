@@ -3,19 +3,12 @@ import ImageTable from './ImageTable';
 
 const CELLS_PER_ROW = 2; // Number of images per row
 
-const BlueTable = ({ data, onUpdateImage, onRemoveBlueImage }) => {
+const BlueTable = ({ data, onUpdateImage, onRemoveImage }) => {
     const handleUpdateImageNumber = (index, number) => {
         const currentImage = data[index];
         onUpdateImage(index, { 
             ...currentImage, 
             number: number
-        });
-    };
-    
-     const handleRemoveBlueImage = (index) => {
-        const currentImage = data[index];
-        onRemoveBlueImage(index, { 
-            ...currentImage
         });
     };
 
@@ -42,7 +35,7 @@ const BlueTable = ({ data, onUpdateImage, onRemoveBlueImage }) => {
             color="blue" 
             onUpdateImageNumber={handleUpdateImageNumber}
             onSort={handleSort}
-            onRemoveImage={handleRemoveBlueImage}
+            onRemoveImage={onRemoveImage}
         />
     );
 };

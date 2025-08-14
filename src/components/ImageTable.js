@@ -1,4 +1,5 @@
 import React from 'react';
+import RemoveBtn from './RemoveBtn';
 
 const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage }) => {
     const CELLS_PER_ROW = 2; // Number of images per row
@@ -72,23 +73,7 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage })
                             }}>
                                 {imageData ? (
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                                        <button
-                                                        onClick={() => onRemoveImage(rowIdx * CELLS_PER_ROW + cellIdx )}
-                                                        style={{
-                                                            position: 'relative',
-                                                            top: '5px',
-                                                            right: '5px',
-                                                            background: '#ff4444',
-                                                            color: 'white',
-                                                            border: 'none',
-                                                            borderRadius: '50%',
-                                                            width: '24px',
-                                                            height: '24px',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    >
-                                                        ×
-                                                    </button>
+                                        <RemoveBtn onClick={() => onRemoveImage(cellIdx)}/>
                                         <img 
                                             src={imageData.url} 
                                             alt={`${color}-${rowIdx}-${cellIdx}`} 
