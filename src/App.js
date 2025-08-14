@@ -2,24 +2,12 @@ import React, { useState } from 'react';
 import BlueTable from './components/BlueTable';
 import RedTable from './components/RedTable';
 import FileInsert from './components/FileInsert';
+import WordExport from './components/WordExport';
 
 const App = () => {
     const [blueTableData, setBlueTableData] = useState([]);
     const [redTableData, setRedTableData] = useState([]);
-    const onRemoveImage = (index, table) => {
-        if (table === 'blue') {
-            setBlueTableData(prev => {
-                let newData = [...prev];
-                newData.splice(index, 1);
-                return newData;
-            });
-        } else {
-            setRedTableData(prev => {
-                let newData = [...prev];
-                newData.splice(index, 1);
-                return newData;
-            });
-        }};
+   
     const handleFileInsert = (files, tableType) => {
         const processFile = (file, index) => {
             return new Promise((resolve) => {
@@ -88,7 +76,7 @@ const App = () => {
                         return newData;
                     });
                 }}
-                onRemoveRedImage={(index) => onRemoveImage(index, 'red')}
+                onRemoveImage={(index) =>  setRedTableData(prev => prev.filter((_, i) => i !== index))}
             />
             <BlueTable 
                 data={blueTableData} 
@@ -105,7 +93,7 @@ const App = () => {
                         return newData;
                     });
                 }}
-                onRemoveBlueImage={(index) => onRemoveImage(index, 'blue')}
+                onRemoveImage={(index) => setBlueTableData(prev => prev.filter((_, i) => i !== index))}
             />
         </div>
     );

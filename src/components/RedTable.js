@@ -3,7 +3,7 @@ import ImageTable from './ImageTable';
 
 const CELLS_PER_ROW = 2; // Number of images per row
 
-const RedTable = ({ data, onUpdateImage, onRemoveRedImage }) => {
+const RedTable = ({ data, onUpdateImage, onRemoveImage }) => {
     const handleUpdateImageNumber = (index, number) => {
         const currentImage = data[index];
         onUpdateImage(index, { 
@@ -12,12 +12,6 @@ const RedTable = ({ data, onUpdateImage, onRemoveRedImage }) => {
         });
     };
 
-    const handleRemoveRedImage = (index) => {
-        const currentImage = data[index];
-        onRemoveRedImage(index, { 
-            ...currentImage
-        });
-    };
     const handleSort = (sortedIndices) => {
         // Create new array with sorted data
         const newData = [...data];
@@ -41,8 +35,7 @@ const RedTable = ({ data, onUpdateImage, onRemoveRedImage }) => {
             color="red" 
             onUpdateImageNumber={handleUpdateImageNumber}
             onSort={handleSort}
-            onRemoveImage={handleRemoveRedImage}
-
+            onRemoveImage={onRemoveImage}
         />
     );
 };
