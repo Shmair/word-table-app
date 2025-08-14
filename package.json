@@ -11,7 +11,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
-  "homepage": "https://sylvie-shamir.github.io/word-table-app/",
+  "homepage": "https://shmair.github.io/word-table-app/",
   "dependencies": {
     "docx": "^9.5.1",
     "file-saver": "^2.0.5",
