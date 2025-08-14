@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/word-table-app/static/css/main.01eeac87.css",
+    "main.js": "/word-table-app/static/js/main.72bbc2d3.js",
+    "index.html": "/word-table-app/index.html",
+    "main.01eeac87.css.map": "/word-table-app/static/css/main.01eeac87.css.map",
+    "main.72bbc2d3.js.map": "/word-table-app/static/js/main.72bbc2d3.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.01eeac87.css",
+    "static/js/main.72bbc2d3.js"
+  ]
+}
