@@ -148,34 +148,7 @@ const WordExport = ({ blueTableData, redTableData, onRemoveBlueImage, onRemoveRe
                             alignment: 'center',
                             spacing: { after: 400 }
                         }),
-                        new Paragraph({
-                            children: [
-                                new TextRun({
-                                    text: '3חתימות מקוריות',
-                                    size: 32,
-                                    color: '000000',
-                                    bold: true
-                                })
-                            ],
-                            alignment: 'center',
-                            spacing: { after: 400 },
-                            bidirectional: true
-                        }),
-                        new Table({
-                            width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                            rows: await createTableRows(blueTableData, 'blue'),
-                            tableProperties: {
-                                borders: {
-                                    top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE }
-                                }
-                            }
-                        }),
-                        new Paragraph({
+                         new Paragraph({
                             children: [
                                 new TextRun({
                                     text: 'חתימות במחלוקת',
@@ -199,6 +172,33 @@ const WordExport = ({ blueTableData, redTableData, onRemoveBlueImage, onRemoveRe
                                     right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
                                     insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
                                     insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED }
+                                }
+                            }
+                        }),
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: 'חתימות מקוריות',
+                                    size: 32,
+                                    color: '000000',
+                                    bold: true
+                                })
+                            ],
+                            alignment: 'center',
+                            spacing: { after: 400 },
+                            bidirectional: true
+                        }),
+                        new Table({
+                            width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
+                            rows: await createTableRows(blueTableData, 'blue'),
+                            tableProperties: {
+                                borders: {
+                                    top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
+                                    insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE }
                                 }
                             }
                         })

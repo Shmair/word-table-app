@@ -73,6 +73,23 @@ const App = () => {
                 blueTableData={blueTableData}
                 redTableData={redTableData}
             />
+             <RedTable 
+                data={redTableData} 
+                onUpdateImage={(index, updatedImage) => {
+                    setRedTableData(prev => {
+                        const newData = Array(prev.length).fill(null);
+                        prev.forEach((item, i) => {
+                            if (i === index) {
+                                newData[i] = updatedImage;
+                            } else {
+                                newData[i] = item;
+                            }
+                        });
+                        return newData;
+                    });
+                }}
+                onRemoveRedImage={(index) => onRemoveImage(index, 'red')}
+            />
             <BlueTable 
                 data={blueTableData} 
                 onUpdateImage={(index, updatedImage) => {
@@ -89,23 +106,6 @@ const App = () => {
                     });
                 }}
                 onRemoveBlueImage={(index) => onRemoveImage(index, 'blue')}
-            />
-            <RedTable 
-                data={redTableData} 
-                onUpdateImage={(index, updatedImage) => {
-                    setRedTableData(prev => {
-                        const newData = Array(prev.length).fill(null);
-                        prev.forEach((item, i) => {
-                            if (i === index) {
-                                newData[i] = updatedImage;
-                            } else {
-                                newData[i] = item;
-                            }
-                        });
-                        return newData;
-                    });
-                }}
-                onRemoveRedImage={(index) => onRemoveImage(index, 'red')}
             />
         </div>
     );
