@@ -14,8 +14,8 @@ const TABLE_CONSTANTS = {
         RED: 'C00000'    // Changed to a more standard Word red
     },
     IMAGE_SIZE: {
-        maxWidth: 200,  // Maximum width allowed
-        maxHeight: 200  // Maximum height allowed
+        maxWidth: 250,  // Maximum width allowed
+        maxHeight: 250  // Maximum height allowed
     }
 };
 
@@ -116,7 +116,7 @@ const WordExport = ({ blueTableData, redTableData }) => {
                                 right: { style: 'nil', size: 0 },
                             },
                             width: { size: TABLE_CONSTANTS.CELL_WIDTH, type: WidthType.DXA },
-                            verticalAlign: 'center',
+                            verticalAlign: 'center'
                         })
                     );
                     continue;
@@ -137,13 +137,13 @@ const WordExport = ({ blueTableData, redTableData }) => {
                                             }
                                         })
                                     ],
-                                    spacing: { before: 200 },
+                                    spacing: { before: 600, after: 400 },
                                     alignment: 'center'
                                 }),
                                 new Paragraph({
                                     text: '#' + (imageData.number || i + j + 1),
                                     alignment: 'center',
-                                    spacing: { before: 400 }
+                                    spacing: { before: 400, after: 400 }
                                 })
                             ],
                             borders: {
@@ -153,7 +153,8 @@ const WordExport = ({ blueTableData, redTableData }) => {
                                 right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: colorHex }
                             },
                             width: { size: TABLE_CONSTANTS.CELL_WIDTH, type: WidthType.DXA },
-                            verticalAlign: 'center'
+                            verticalAlign: 'center',
+                            height: { size: 6000, rule: 'atLeast' }
                         })
                     );
                 } catch (error) {
@@ -244,7 +245,7 @@ const WordExport = ({ blueTableData, redTableData }) => {
                                 })
                             ],
                             alignment: 'center',
-                            spacing: { after: 400 },
+                            spacing: { after: 400 , before: 400 },
                             bidirectional: true
                         }),
                         new Table({

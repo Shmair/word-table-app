@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import RemoveBtn from './RemoveBtn';
 import CropBtn from './CropBtn';
+import RotateBtn from './RotateBtn';
 
 const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, onUpdateImage }) => {
     const CELLS_PER_ROW = 2;
@@ -74,6 +75,15 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", position: "relative" }}>
                                         <div style={{ position: "absolute", top: 0, right: 0, display: "flex", gap: "5px" }}>
                                             <RemoveBtn onClick={() => onRemoveImage(rowIdx * CELLS_PER_ROW + cellIdx)} />
+                                            <RotateBtn 
+                                                imageUrl={imageData.url}
+                                                onRotateComplete={(rotatedUrl) => {
+                                                    onUpdateImage(rowIdx * CELLS_PER_ROW + cellIdx, {
+                                                        ...imageData,
+                                                        url: rotatedUrl
+                                                    });
+                                                }}
+                                            />
                                             <CropBtn 
                                                 imageUrl={imageData.url}
                                                 onCropComplete={(croppedUrl) => {

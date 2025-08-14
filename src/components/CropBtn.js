@@ -16,16 +16,6 @@ const CropBtn = ({ imageUrl, onCropComplete }) => {
         setCompletedCrop(crop);
     };
 
-    const loadImage = (url) => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.onload = () => resolve(img);
-            img.onerror = reject;
-            img.src = url;
-        });
-    };
-
     const handleSaveCrop = async () => {
         if (!imgRef.current || !completedCrop?.width || !completedCrop?.height) {
             return;
