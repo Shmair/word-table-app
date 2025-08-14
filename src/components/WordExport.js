@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver';
 
 const TABLE_CONSTANTS = {
     CELLS_PER_ROW: 2,
-    BORDER_SIZE: 10,
+    BORDER_SIZE: 20,
     BORDER_STYLE: 'single',
     CELL_WIDTH: 4500,
     TABLE_WIDTH: 9000,
@@ -14,8 +14,8 @@ const TABLE_CONSTANTS = {
         RED: 'C00000'    // Changed to a more standard Word red
     },
     IMAGE_SIZE: {
-        width: 200,
-        height: 200
+        maxWidth: 200,  // Maximum width allowed
+        maxHeight: 200  // Maximum height allowed
     }
 };
 
@@ -23,9 +23,58 @@ const WordExport = ({ blueTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [documentTitle, setDocumentTitle] = useState('');
 
-    const processImage = async (base64) => {
+    const processImage = async (imageUrl) => {
         try {
-            const base64Data = base64.split(';base64,').pop();
+            let base64String = imageUrl;
+            let originalWidth, originalHeight;
+            
+            // If the URL is not a base64 string, convert it
+            if (!imageUrl.startsWith('data:')) {
+                // Create a canvas to convert the image
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = imageUrl;
+                });
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                base64String = canvas.toDataURL('image/jpeg', 1.0);
+                originalWidth = img.width;
+                originalHeight = img.height;
+            } else {
+                // Get dimensions from base64 image
+                const img = new Image();
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = base64String;
+                });
+                originalWidth = img.width;
+                originalHeight = img.height;
+            }
+
+            // Calculate aspect ratio-preserving dimensions
+            let finalWidth = originalWidth;
+            let finalHeight = originalHeight;
+            
+            // Scale down if exceeds maximum dimensions while preserving aspect ratio
+            if (finalWidth > TABLE_CONSTANTS.IMAGE_SIZE.maxWidth || finalHeight > TABLE_CONSTANTS.IMAGE_SIZE.maxHeight) {
+                const ratio = Math.min(
+                    TABLE_CONSTANTS.IMAGE_SIZE.maxWidth / finalWidth,
+                    TABLE_CONSTANTS.IMAGE_SIZE.maxHeight / finalHeight
+                );
+                finalWidth = Math.round(finalWidth * ratio);
+                finalHeight = Math.round(finalHeight * ratio);
+            }
+
+            // Extract the base64 data
+            const base64Data = base64String.split(';base64,').pop();
             const byteCharacters = atob(base64Data);
             const byteNumbers = new Array(byteCharacters.length);
             
@@ -34,10 +83,15 @@ const WordExport = ({ blueTableData, redTableData }) => {
             }
             
             const byteArray = new Uint8Array(byteNumbers);
-            return byteArray.buffer;
+            return {
+                buffer: byteArray.buffer,
+                width: finalWidth,
+                height: finalHeight
+            };
         } catch (error) {
             console.error('Error processing image:', error);
-            throw new Error('Failed to process image');
+            console.error('Image URL:', imageUrl);
+            throw new Error('Failed to process image: ' + error.message);
         }
     };
 
@@ -69,23 +123,27 @@ const WordExport = ({ blueTableData, redTableData }) => {
                 }
 
                 try {
-                    const imageBuffer = await processImage(imageData.url);
+                    const processedImage = await processImage(imageData.url);
                     cells.push(
                         new TableCell({
                             children: [
                                 new Paragraph({
                                     children: [
                                         new ImageRun({
-                                            data: imageBuffer,
-                                            transformation: TABLE_CONSTANTS.IMAGE_SIZE
+                                            data: processedImage.buffer,
+                                            transformation: {
+                                                width: processedImage.width,
+                                                height: processedImage.height
+                                            }
                                         })
                                     ],
+                                    spacing: { before: 200 },
                                     alignment: 'center'
                                 }),
                                 new Paragraph({
                                     text: '#' + (imageData.number || i + j + 1),
                                     alignment: 'center',
-                                    spacing: { before: 200 }
+                                    spacing: { before: 400 }
                                 })
                             ],
                             borders: {

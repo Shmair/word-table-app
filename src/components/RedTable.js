@@ -36,6 +36,7 @@ const RedTable = ({ data, onUpdateImage, onRemoveImage }) => {
             onUpdateImageNumber={handleUpdateImageNumber}
             onSort={handleSort}
             onRemoveImage={onRemoveImage}
+            onUpdateImage={onUpdateImage}
         />
     );
 };

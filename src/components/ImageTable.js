@@ -1,8 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import RemoveBtn from './RemoveBtn';
+import CropBtn from './CropBtn';
 
-const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage }) => {
-    const CELLS_PER_ROW = 2; // Number of images per row
+const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, onUpdateImage }) => {
+    const CELLS_PER_ROW = 2;
     
     const handleNumberChange = (index, value) => {
         const number = parseInt(value);
@@ -13,46 +14,44 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage })
 
     const handleSort = () => {
         if (onSort && data && data.length > 0) {
-            const sortedIndices = [...data].map((item, index) => ({
-                index,
-                number: item ? (item.number || index + 1) : Infinity
-            }))
-            .sort((a, b) => a.number - b.number)
-            .map(item => item.index);
+            const sortedIndices = [...data]
+                .map((item, index) => ({
+                    index,
+                    number: item ? (item.number || index + 1) : Infinity
+                }))
+                .sort((a, b) => a.number - b.number)
+                .map(item => item.index);
             
             onSort(sortedIndices);
         }
     };
 
-    // Group images into rows with LTR ordering
     const rows = [];
     for (let i = 0; i < data.length; i += CELLS_PER_ROW) {
-        // Get the current slice for LTR display
         const rowData = data.slice(i, i + CELLS_PER_ROW);
-        // Pad the row to full length if needed
         while (rowData.length < CELLS_PER_ROW) {
-            rowData.push(null); // Add empty cells to the end (right side)
+            rowData.push(null);
         }
         rows.push(rowData);
     }
 
     return (
-        <table style={{ border: `2px solid ${color}`, margin: '10px', borderCollapse: 'collapse' }}>
+        <table style={{ border: `2px solid ${color}`, margin: "10px", borderCollapse: "collapse" }}>
             <thead>
                 <tr>
-                    <th colSpan={CELLS_PER_ROW} style={{ color: color, padding: '10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px' }}>
-                            <span>חתימות {color == 'blue' ? 'מקוריות' : 'במחלוקת'}</span>
+                    <th colSpan={CELLS_PER_ROW} style={{ color, padding: "10px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
+                            <span>חתימות {color === "blue" ? "מקוריות" : "במחלוקת"}</span>
                             <button 
                                 onClick={handleSort}
                                 disabled={!data || data.length === 0}
                                 style={{
-                                    padding: '5px 10px',
+                                    padding: "5px 10px",
                                     backgroundColor: color,
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: data && data.length > 0 ? 'pointer' : 'not-allowed',
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    cursor: data && data.length > 0 ? "pointer" : "not-allowed",
                                     opacity: data && data.length > 0 ? 1 : 0.5
                                 }}
                             >
@@ -68,52 +67,62 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage })
                         {row.map((imageData, cellIdx) => (
                             <td key={cellIdx} style={{ 
                                 border: `1px solid ${color}`, 
-                                padding: '10px',
-                                textAlign: 'center'
+                                padding: "10px",
+                                textAlign: "center"
                             }}>
                                 {imageData ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                                        <RemoveBtn onClick={() => onRemoveImage(cellIdx)}/>
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", position: "relative" }}>
+                                        <div style={{ position: "absolute", top: 0, right: 0, display: "flex", gap: "5px" }}>
+                                            <RemoveBtn onClick={() => onRemoveImage(rowIdx * CELLS_PER_ROW + cellIdx)} />
+                                            <CropBtn 
+                                                imageUrl={imageData.url}
+                                                onCropComplete={(croppedUrl) => {
+                                                    onUpdateImage(rowIdx * CELLS_PER_ROW + cellIdx, {
+                                                        ...imageData,
+                                                        url: croppedUrl
+                                                    });
+                                                }}
+                                            />
+                                        </div>
                                         <img 
                                             src={imageData.url} 
                                             alt={`${color}-${rowIdx}-${cellIdx}`} 
                                             style={{ 
-                                                width: '150px',
-                                                height: '150px',
-                                                objectFit: 'contain'
+                                                width: "150px",
+                                                height: "150px",
+                                                objectFit: "contain"
                                             }} 
                                         />
                                         <div style={{ 
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '5px'
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "5px"
                                         }}>
-                                            <span style={{ color: color }}>#</span>
+                                            <span style={{ color }}>#</span>
                                             <input
                                                 type="number"
                                                 min="1"
                                                 value={imageData.number || rowIdx * CELLS_PER_ROW + cellIdx + 1}
                                                 onChange={(e) => handleNumberChange(rowIdx * CELLS_PER_ROW + cellIdx, e.target.value)}
                                                 style={{
-                                                    width: '60px',
-                                                    padding: '4px',
+                                                    width: "60px",
+                                                    padding: "4px",
                                                     border: `1px solid ${color}`,
-                                                    borderRadius: '4px',
-                                                    color: color,
-                                                    textAlign: 'center'
+                                                    borderRadius: "4px",
+                                                    color,
+                                                    textAlign: "center"
                                                 }}
                                             />
                                         </div>
                                     </div>
                                 ) : (
                                     <div style={{ 
-                                        width: '150px', 
-                                        height: '150px' 
+                                        width: "150px", 
+                                        height: "150px" 
                                     }} />
                                 )}
                             </td>
                         ))}
-
                     </tr>
                 ))}
             </tbody>
