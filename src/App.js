@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import BlueTable from './components/BlueTable';
 import RedTable from './components/RedTable';
 import FileInsert from './components/FileInsert';
-import WordExport from './components/WordExport';
 
 const App = () => {
     const [blueTableData, setBlueTableData] = useState([]);
