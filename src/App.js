@@ -6,6 +6,46 @@ import FileInsert from './components/FileInsert';
 const App = () => {
     const [blueTableData, setBlueTableData] = useState([]);
     const [redTableData, setRedTableData] = useState([]);
+
+    const handleUpdateImageNumber = (index, number, tableType) => {
+        if (tableType === 'blue') {
+            setBlueTableData(prevData => {
+                const newData = [...prevData];
+                if (newData[index]) {
+                    newData[index] = { ...newData[index], number };
+                }
+                return newData;
+            });
+        } else if (tableType === 'red') {
+            setRedTableData(prevData => {
+                const newData = [...prevData];
+                if (newData[index]) {
+                    newData[index] = { ...newData[index], number };
+                }
+                return newData;
+            });
+        }
+    };
+
+    const handleSort = (sortedIndices, tableType) => {
+        if (tableType === 'blue') {
+            setBlueTableData(prevData => {
+                const newData = [...prevData];
+                sortedIndices.forEach((oldIndex, newIndex) => {
+                    newData[newIndex] = prevData[oldIndex];
+                });
+                return newData;
+            });
+        } else if (tableType === 'red') {
+            setRedTableData(prevData => {
+                const newData = [...prevData];
+                sortedIndices.forEach((oldIndex, newIndex) => {
+                    newData[newIndex] = prevData[oldIndex];
+                });
+                return newData;
+            });
+        }
+    };
    
     const handleFileInsert = (files, tableType) => {
         const processFile = (file, index) => {
@@ -75,7 +115,9 @@ const App = () => {
                         return newData;
                     });
                 }}
-                onRemoveImage={(index) =>  setRedTableData(prev => prev.filter((_, i) => i !== index))}
+                onRemoveImage={(index) => setRedTableData(prev => prev.filter((_, i) => i !== index))}
+                onUpdateImageNumber={(index, number) => handleUpdateImageNumber(index, number, 'red')}
+                onSort={(sortedIndices) => handleSort(sortedIndices, 'red')}
             />
             <BlueTable 
                 data={blueTableData} 
@@ -93,6 +135,8 @@ const App = () => {
                     });
                 }}
                 onRemoveImage={(index) => setBlueTableData(prev => prev.filter((_, i) => i !== index))}
+                onUpdateImageNumber={(index, number) => handleUpdateImageNumber(index, number, 'blue')}
+                onSort={(sortedIndices) => handleSort(sortedIndices, 'blue')}
             />
         </div>
     );

@@ -37,17 +37,17 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
     }
 
     return (
-        <table style={{ border: `2px solid ${color}`, margin: "10px", borderCollapse: "collapse" }}>
+        <table style={{ border: `4px solid ${color}`, margin: "20px", borderCollapse: "collapse" }}>
             <thead>
                 <tr>
-                    <th colSpan={CELLS_PER_ROW} style={{ color, padding: "10px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
-                            <span>חתימות {color === "blue" ? "מקוריות" : "במחלוקת"}</span>
+                    <th colSpan={CELLS_PER_ROW} style={{ color, padding: "40px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", padding: "0 10px" }}>
+                            <span style={{padding: "0 15px", textAlign:"center"}}> חתימות {color === "blue" ? " מקוריות  " : " במחלוקת  "}</span>
                             <button 
                                 onClick={handleSort}
                                 disabled={!data || data.length === 0}
                                 style={{
-                                    padding: "5px 10px",
+                                    padding: "5px",
                                     backgroundColor: color,
                                     color: "white",
                                     border: "none",
@@ -67,13 +67,13 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                     <tr key={rowIdx}>
                         {row.map((imageData, cellIdx) => (
                             <td key={cellIdx} style={{ 
-                                border: `1px solid ${color}`, 
-                                padding: "10px",
+                                border: `2px solid ${color}`, 
+                                padding: "25px",
                                 textAlign: "center"
                             }}>
                                 {imageData ? (
-                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", position: "relative" }}>
-                                        <div style={{ position: "absolute", top: 0, right: 0, display: "flex", gap: "5px" }}>
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "15px", position: "relative" }}>
+                                        <div style={{ position: "absolute", top: 0, right: 0, display: "flex", gap: "10px" }}>
                                             <RemoveBtn onClick={() => onRemoveImage(rowIdx * CELLS_PER_ROW + cellIdx)} />
                                             <RotateBtn 
                                                 imageUrl={imageData.url}
@@ -98,8 +98,8 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                             src={imageData.url} 
                                             alt={`${color}-${rowIdx}-${cellIdx}`} 
                                             style={{ 
-                                                width: "150px",
-                                                height: "150px",
+                                                width: "400px",
+                                                height: "400px",
                                                 objectFit: "contain"
                                             }} 
                                         />
@@ -127,8 +127,8 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                     </div>
                                 ) : (
                                     <div style={{ 
-                                        width: "150px", 
-                                        height: "150px" 
+                                        width: "400px", 
+                                        height: "400px" 
                                     }} />
                                 )}
                             </td>
