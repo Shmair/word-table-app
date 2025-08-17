@@ -1,29 +1,6 @@
 import { Document, ImageRun, LineRuleType, Packer, Paragraph, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from 'docx';
 import { useState } from 'react';
-import { TABLE_TYPE } from '../constants';
-
-
-const TABLE_CONSTANTS = {
-    CELLS_PER_ROW: 2,
-    BORDER_SIZE: 20,
-    BORDER_STYLE: 'single',
-    CELL_WIDTH: 4500,
-    TABLE_WIDTH: 9000,
-    GRID_WIDTH: 100,
-    MARGINS: {
-        LEFT: 10,
-        RIGHT: 10
-    },
-    COLORS: {
-        GREEN: '66EF95',  // Exact color from correct.docx
-        RED: 'C00000',    // Exact color from correct.docx
-        BLACK: '000000'   // For text color
-    },
-    IMAGE_SIZE: {
-        maxWidth: 250,  // Maximum width allowed
-        maxHeight: 250  // Maximum height allowed
-    }
-};
+import { TABLE_TYPE, TABLE_CONSTANTS } from '../constants';
 
 const WordExport = ({ greenTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);

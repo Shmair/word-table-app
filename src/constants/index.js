@@ -1,3 +1,25 @@
+// Table/Document constants for WordExport and other components
+export const TABLE_CONSTANTS = {
+    CELLS_PER_ROW: 2,
+    BORDER_SIZE: 20,
+    BORDER_STYLE: 'single',
+    CELL_WIDTH: 4500,
+    TABLE_WIDTH: 9000,
+    GRID_WIDTH: 100,
+    MARGINS: {
+        LEFT: 10,
+        RIGHT: 10
+    },
+    COLORS: {
+        GREEN: '#275114',  
+        RED: 'C00000', 
+        BLACK: '000000'
+    },
+    IMAGE_SIZE: {
+        maxWidth: 250,  // Maximum width allowed
+        maxHeight: 250  // Maximum height allowed
+    }
+};
 // Table Types
 export const TABLE_TYPE = {
     GREEN: 'GREEN',
@@ -51,11 +73,8 @@ export const STYLES = {
 
 // Document Settings
 export const DOCUMENT = {
-    BORDER_STYLE: 'single',
-    COLORS: {
-        GREEN: '00ab82',
-        RED: 'C00000'
-    }
+    BORDER_STYLE: TABLE_CONSTANTS.BORDER_STYLE,
+    COLORS: TABLE_CONSTANTS.COLORS
 };
 
 // Image Settings
