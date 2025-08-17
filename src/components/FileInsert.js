@@ -1,12 +1,13 @@
-import React, { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import WordExport from './WordExport';
+import { TABLE_TYPE, TABLE_LABELS, STYLES } from '../constants';
 
 const TABLE_OPTIONS = [
-    { value: 'red', label: 'חתימות במחלוקת' },
-    { value: 'blue', label: 'חתימות מקוריות' }
+    { value: TABLE_TYPE.RED, label: TABLE_LABELS.DISPUTED_SIGNATURES },
+    { value: TABLE_TYPE.GREEN, label: TABLE_LABELS.ORIGINAL_SIGNATURES }
 ];
 
-const FileUpload = ({ onFileInsert, blueTableData, redTableData }) => {
+const FileUpload = ({ onFileInsert, greenTableData, redTableData }) => {
     const [selectedFiles, setSelectedFiles] = useState(null);
     const [tableChoice, setTableChoice] = useState(TABLE_OPTIONS[0].value);
     const fileInputRef = useRef(null);
@@ -28,7 +29,12 @@ const FileUpload = ({ onFileInsert, blueTableData, redTableData }) => {
     };
 
     return (
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '10px' }}>
+        <div style={{ 
+            display: STYLES.DISPLAY.FLEX, 
+            gap: STYLES.PADDING.SMALL, 
+            alignItems: STYLES.ALIGN_ITEMS.CENTER, 
+            padding: STYLES.PADDING.SMALL 
+        }}>
             <input 
                 type="file" 
                 ref={fileInputRef}
@@ -45,7 +51,7 @@ const FileUpload = ({ onFileInsert, blueTableData, redTableData }) => {
                 ))}
             </select>
             <button onClick={handleInsert}>הכנס לטבלה</button>
-            <WordExport blueTableData={blueTableData} redTableData={redTableData} />
+            <WordExport greenTableData={greenTableData} redTableData={redTableData} />
         </div>
     );
 };

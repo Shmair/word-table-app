@@ -1,6 +1,6 @@
-﻿import React from 'react';
-import RemoveBtn from './RemoveBtn';
+﻿import { SIZES, STYLES, TABLE_TYPE, TABLE_LABELS } from '../constants';
 import CropBtn from './CropBtn';
+import RemoveBtn from './RemoveBtn';
 import RotateBtn from './RotateBtn';
 
 const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, onUpdateImage }) => {
@@ -42,7 +42,9 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                 <tr>
                     <th colSpan={CELLS_PER_ROW} style={{ color, padding: "40px" }}>
                         <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", padding: "0 10px" }}>
-                            <span style={{padding: "0 15px", textAlign:"center"}}> חתימות {color === "blue" ? " מקוריות  " : " במחלוקת  "}</span>
+                            <span style={{padding: STYLES.PADDING.MEDIUM, textAlign: STYLES.TEXT_ALIGN.CENTER}}>
+                                חתימות {color === TABLE_TYPE.BLUE ? TABLE_LABELS.ORIGINAL_SIGNATURES : TABLE_LABELS.DISPUTED_SIGNATURES}
+                            </span>
                             <button 
                                 onClick={handleSort}
                                 disabled={!data || data.length === 0}
@@ -98,8 +100,8 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                             src={imageData.url} 
                                             alt={`${color}-${rowIdx}-${cellIdx}`} 
                                             style={{ 
-                                                width: "400px",
-                                                height: "400px",
+                                                width: SIZES.IMAGE.WIDTH,
+                                                height: SIZES.IMAGE.HEIGHT,
                                                 objectFit: "contain"
                                             }} 
                                         />
@@ -115,20 +117,20 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                                 value={imageData.number || rowIdx * CELLS_PER_ROW + cellIdx + 1}
                                                 onChange={(e) => handleNumberChange(rowIdx * CELLS_PER_ROW + cellIdx, e.target.value)}
                                                 style={{
-                                                    width: "60px",
-                                                    padding: "4px",
+                                                    width: SIZES.INPUT.WIDTH,
+                                                    padding: STYLES.PADDING.TINY,
                                                     border: `1px solid ${color}`,
-                                                    borderRadius: "4px",
+                                                    borderRadius: STYLES.BORDER.RADIUS,
                                                     color,
-                                                    textAlign: "center"
+                                                    textAlign: STYLES.TEXT_ALIGN.CENTER
                                                 }}
                                             />
                                         </div>
                                     </div>
                                 ) : (
                                     <div style={{ 
-                                        width: "400px", 
-                                        height: "400px" 
+                                        width: SIZES.IMAGE.WIDTH, 
+                                        height: SIZES.IMAGE.HEIGHT 
                                     }} />
                                 )}
                             </td>

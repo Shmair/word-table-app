@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import BlueTable from './components/BlueTable';
-import RedTable from './components/RedTable';
+import ColorTable from './components/ColorTable';
 import FileInsert from './components/FileInsert';
+import { TABLE_TYPE, COLORS, STYLES } from './constants';
 
 const App = () => {
-    const [blueTableData, setBlueTableData] = useState([]);
+    const [greenTableData, setgreenTableData] = useState([]);
     const [redTableData, setRedTableData] = useState([]);
 
     const handleUpdateImageNumber = (index, number, tableType) => {
-        if (tableType === 'blue') {
-            setBlueTableData(prevData => {
+        if (tableType === TABLE_TYPE.GREEN) {
+            setgreenTableData(prevData => {
                 const newData = [...prevData];
                 if (newData[index]) {
                     newData[index] = { ...newData[index], number };
                 }
                 return newData;
             });
-        } else if (tableType === 'red') {
+        } else if (tableType === TABLE_TYPE.RED) {
             setRedTableData(prevData => {
                 const newData = [...prevData];
                 if (newData[index]) {
@@ -28,15 +28,15 @@ const App = () => {
     };
 
     const handleSort = (sortedIndices, tableType) => {
-        if (tableType === 'blue') {
-            setBlueTableData(prevData => {
+        if (tableType === TABLE_TYPE.GREEN) {
+            setgreenTableData(prevData => {
                 const newData = [...prevData];
                 sortedIndices.forEach((oldIndex, newIndex) => {
                     newData[newIndex] = prevData[oldIndex];
                 });
                 return newData;
             });
-        } else if (tableType === 'red') {
+        } else if (tableType === TABLE_TYPE.RED) {
             setRedTableData(prevData => {
                 const newData = [...prevData];
                 sortedIndices.forEach((oldIndex, newIndex) => {
@@ -69,8 +69,8 @@ const App = () => {
                     number: idx + 1 // Set initial sequential numbers
                 }));
                 
-                if (tableType === 'blue') {
-                    setBlueTableData(prevData => {
+                if (tableType === TABLE_TYPE.GREEN) {
+                    setgreenTableData(prevData => {
                         const startNumber = prevData.length > 0 
                             ? Math.max(...prevData.filter(item => item && item.number).map(item => item.number || 0)) + 1 
                             : 1;
@@ -79,7 +79,7 @@ const App = () => {
                             number: startNumber + idx
                         }))];
                     });
-                } else if (tableType === 'red') {
+                } else if (tableType === TABLE_TYPE.RED) {
                     setRedTableData(prevData => {
                         const startNumber = prevData.length > 0 
                             ? Math.max(...prevData.filter(item => item && item.number).map(item => item.number || 0)) + 1 
@@ -93,15 +93,16 @@ const App = () => {
             });
 };                  
     return (
-        <div align="center" style={{ padding: '20px' }}>
+        <div align="center" style={{ padding: STYLES.PADDING.DEFAULT }}>
             <h1>חתימות</h1>
             <FileInsert 
                 onFileInsert={handleFileInsert}
-                blueTableData={blueTableData}
+                greenTableData={greenTableData}
                 redTableData={redTableData}
             />
-             <RedTable 
-                data={redTableData} 
+             <ColorTable 
+                data={redTableData}
+                color={COLORS.RED}
                 onUpdateImage={(index, updatedImage) => {
                     setRedTableData(prev => {
                         const newData = Array(prev.length).fill(null);
@@ -116,13 +117,14 @@ const App = () => {
                     });
                 }}
                 onRemoveImage={(index) => setRedTableData(prev => prev.filter((_, i) => i !== index))}
-                onUpdateImageNumber={(index, number) => handleUpdateImageNumber(index, number, 'red')}
-                onSort={(sortedIndices) => handleSort(sortedIndices, 'red')}
+                onUpdateImageNumber={(index, number) => handleUpdateImageNumber(index, number, TABLE_TYPE.RED)}
+                onSort={(sortedIndices) => handleSort(sortedIndices, TABLE_TYPE.RED)}
             />
-            <BlueTable 
-                data={blueTableData} 
+            <ColorTable 
+                data={greenTableData}
+                color={COLORS.GREEN}
                 onUpdateImage={(index, updatedImage) => {
-                    setBlueTableData(prev => {
+                    setgreenTableData(prev => {
                         const newData = Array(prev.length).fill(null);
                         prev.forEach((item, i) => {
                             if (i === index) {
@@ -134,9 +136,9 @@ const App = () => {
                         return newData;
                     });
                 }}
-                onRemoveImage={(index) => setBlueTableData(prev => prev.filter((_, i) => i !== index))}
-                onUpdateImageNumber={(index, number) => handleUpdateImageNumber(index, number, 'blue')}
-                onSort={(sortedIndices) => handleSort(sortedIndices, 'blue')}
+                onRemoveImage={(index) => setgreenTableData(prev => prev.filter((_, i) => i !== index))}
+                onUpdateImageNumber={(index, number) => handleUpdateImageNumber(index, number, TABLE_TYPE.GREEN)}
+                onSort={(sortedIndices) => handleSort(sortedIndices, TABLE_TYPE.GREEN)}
             />
         </div>
     );

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Document, Packer, Table, TableRow, TableCell, Paragraph, WidthType, ImageRun, TextRun } from 'docx';
+import { Document, ImageRun, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType } from 'docx';
 import { saveAs } from 'file-saver';
+import { useState } from 'react';
+import { TABLE_TYPE } from '../constants';
 
 
 const TABLE_CONSTANTS = {
@@ -10,7 +11,7 @@ const TABLE_CONSTANTS = {
     CELL_WIDTH: 4500,
     TABLE_WIDTH: 9000,
     COLORS: {
-        BLUE: '0070C0',  // Changed to a more standard Word blue
+        GREEN: '#66ef95',  // Changed to a more standard Word green
         RED: 'C00000'    // Changed to a more standard Word red
     },
     IMAGE_SIZE: {
@@ -19,7 +20,7 @@ const TABLE_CONSTANTS = {
     }
 };
 
-const WordExport = ({ blueTableData, redTableData }) => {
+const WordExport = ({ greenTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [documentTitle, setDocumentTitle] = useState('');
 
@@ -97,7 +98,7 @@ const WordExport = ({ blueTableData, redTableData }) => {
 
     const createTableRows = async (data, color) => {
         const rows = [];
-        const colorHex = color === 'blue' ? TABLE_CONSTANTS.COLORS.BLUE : TABLE_CONSTANTS.COLORS.RED;
+        const colorHex = color === TABLE_TYPE.GREEN ? TABLE_CONSTANTS.COLORS.GREEN : TABLE_CONSTANTS.COLORS.RED;
         
         for (let i = 0; i < data.length; i += TABLE_CONSTANTS.CELLS_PER_ROW) {
             const rowData = data.slice(i, i + TABLE_CONSTANTS.CELLS_PER_ROW);
@@ -175,7 +176,7 @@ const WordExport = ({ blueTableData, redTableData }) => {
     const exportToWord = async () => {
         if (isExporting) return;
         
-        if (!blueTableData?.length && !redTableData?.length) {
+        if (!greenTableData?.length && !redTableData?.length) {
             alert('No images to export. Please add some images first.');
             return;
         }
@@ -223,7 +224,7 @@ const WordExport = ({ blueTableData, redTableData }) => {
                         }),
                         new Table({
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                            rows: await createTableRows(redTableData, 'red'),
+                            rows: await createTableRows(redTableData, TABLE_TYPE.RED),
                             tableProperties: {
                                 borders: {
                                     top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
@@ -250,15 +251,15 @@ const WordExport = ({ blueTableData, redTableData }) => {
                         }),
                         new Table({
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                            rows: await createTableRows(blueTableData, 'blue'),
+                            rows: await createTableRows(greenTableData, TABLE_TYPE.GREEN),
                             tableProperties: {
                                 borders: {
-                                    top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE },
-                                    insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.BLUE }
+                                    top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                                    bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                                    left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                                    right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                                    insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                                    insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN }
                                 }
                             }
                         })

@@ -1,4 +1,3 @@
-import React from 'react';
 import ImageTable from './ImageTable';
 
 const ColorTable = ({ data, color, onSort, onRemoveImage, onUpdateImage, onUpdateImageNumber }) => {

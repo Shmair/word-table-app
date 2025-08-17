@@ -13,8 +13,10 @@
   },
   "homepage": "https://shmair.github.io/word-table-app/",
   "dependencies": {
+    "@react-pdf/renderer": "^4.3.0",
     "docx": "^9.5.1",
     "file-saver": "^2.0.5",
+    "pdfjs-dist": "^3.11.174",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-image-crop": "^11.0.10",

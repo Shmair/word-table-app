@@ -1,7 +1,7 @@
 # Word Table App
 
 ## Overview
-The Word Table App is a simple React application that allows users to upload files or pictures and decide whether to place them in a blue table or a red table. The application is structured to provide a clear separation of components, making it easy to manage and extend.
+The Word Table App is a simple React application that allows users to upload files or pictures and decide whether to place them in a green table or a red table. The application is structured to provide a clear separation of components, making it easy to manage and extend.
 
 ## Project Structure
 ```
@@ -9,7 +9,7 @@ word-table-app
 ├── src
 │   ├── App.js                # Main entry point of the application
 │   ├── components
-│   │   ├── BlueTable.js      # Component for rendering the blue table
+│   │   ├── GreenTable.js      # Component for rendering the green table
 │   │   ├── RedTable.js       # Component for rendering the red table
 │   │   └── FileUpload.js     # Component for handling file uploads
 │   └── utils
@@ -22,7 +22,7 @@ word-table-app
 
 ## Features
 - **File Upload**: Users can upload files or images.
-- **Dynamic Table Management**: Depending on the user's choice, uploaded content can be placed in either the blue or red table.
+- **Dynamic Table Management**: Depending on the user's choice, uploaded content can be placed in either the green or red table.
 - **Reusable Components**: The application is built using reusable React components for better maintainability.
 
 ## Getting Started
@@ -44,7 +44,7 @@ word-table-app
    ```
 
 ## Usage
-- Upon starting the application, users will see the blue and red tables.
+- Upon starting the application, users will see the green and red tables.
 - Use the file upload component to select a file or image.
 - Choose the desired table for the uploaded content.
 

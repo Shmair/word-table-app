@@ -1,4 +1,3 @@
-import React from 'react';
 
 const RotateBtn = ({ imageUrl, onRotateComplete }) => {
     const handleRotate = () => {
@@ -67,7 +66,7 @@ const RotateBtn = ({ imageUrl, onRotateComplete }) => {
                 viewBox="0 0 24 24" 
                 width="20" 
                 height="20" 
-                stroke="currentColor" 
+                stroke="#1E90FF" 
                 strokeWidth="2" 
                 fill="none"
             >
