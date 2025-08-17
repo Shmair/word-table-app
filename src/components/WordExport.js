@@ -1,5 +1,4 @@
-import { Document, ImageRun, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType } from 'docx';
-import { saveAs } from 'file-saver';
+import { Document, ImageRun, LineRuleType, Packer, Paragraph, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from 'docx';
 import { useState } from 'react';
 import { TABLE_TYPE } from '../constants';
 
@@ -10,9 +9,15 @@ const TABLE_CONSTANTS = {
     BORDER_STYLE: 'single',
     CELL_WIDTH: 4500,
     TABLE_WIDTH: 9000,
+    GRID_WIDTH: 100,
+    MARGINS: {
+        LEFT: 10,
+        RIGHT: 10
+    },
     COLORS: {
-        GREEN: '#66ef95',  // Changed to a more standard Word green
-        RED: 'C00000'    // Changed to a more standard Word red
+        GREEN: '66EF95',  // Exact color from correct.docx
+        RED: 'C00000',    // Exact color from correct.docx
+        BLACK: '000000'   // For text color
     },
     IMAGE_SIZE: {
         maxWidth: 250,  // Maximum width allowed
@@ -24,41 +29,45 @@ const WordExport = ({ greenTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [documentTitle, setDocumentTitle] = useState('');
 
-    const processImage = async (imageUrl) => {
+    const processImage = async (imageUrl) => {debugger
         try {
-            let base64String = imageUrl;
+            console.log('Processing image:', imageUrl.substring(0, 50) + '...');
             let originalWidth, originalHeight;
             
-            // If the URL is not a base64 string, convert it
-            if (!imageUrl.startsWith('data:')) {
-                // Create a canvas to convert the image
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                await new Promise((resolve, reject) => {
-                    img.onload = resolve;
-                    img.onerror = reject;
-                    img.src = imageUrl;
-                });
-                
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                base64String = canvas.toDataURL('image/jpeg', 1.0);
-                originalWidth = img.width;
-                originalHeight = img.height;
-            } else {
-                // Get dimensions from base64 image
-                const img = new Image();
-                await new Promise((resolve, reject) => {
-                    img.onload = resolve;
-                    img.onerror = reject;
-                    img.src = base64String;
-                });
-                originalWidth = img.width;
-                originalHeight = img.height;
+            // Validate image URL format
+            if (!imageUrl || (typeof imageUrl !== 'string')) {
+                throw new Error('Invalid image URL format');
             }
+
+            // Create an image element to load and process the image
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            
+            // Load the image and get its dimensions
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = imageUrl;
+            });
+            
+            originalWidth = img.width;
+            originalHeight = img.height;
+            
+            // Always create a new canvas and convert to JPEG
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            
+            // Fill with white background first (for transparency)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw the image
+            ctx.drawImage(img, 0, 0);
+            
+            // Convert to JPEG format with high quality
+            const base64String = canvas.toDataURL('image/jpeg', 0.95);
 
             // Calculate aspect ratio-preserving dimensions
             let finalWidth = originalWidth;
@@ -96,7 +105,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
         }
     };
 
-    const createTableRows = async (data, color) => {
+    const createTableRows = async (data, color) => {debugger;
         const rows = [];
         const colorHex = color === TABLE_TYPE.GREEN ? TABLE_CONSTANTS.COLORS.GREEN : TABLE_CONSTANTS.COLORS.RED;
         
@@ -135,16 +144,26 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                             transformation: {
                                                 width: processedImage.width,
                                                 height: processedImage.height
+                                            },
+                                            embedding: {
+                                                title: `image-${i}-${j}`,
+                                                description: `Image ${i}-${j}`,
                                             }
                                         })
                                     ],
-                                    spacing: { before: 600, after: 400 },
+                                    spacing: { 
+                                        before: 600, 
+                                        after: 400
+                                    },
                                     alignment: 'center'
                                 }),
                                 new Paragraph({
                                     text: '#' + (imageData.number || i + j + 1),
                                     alignment: 'center',
-                                    spacing: { before: 400, after: 400 }
+                                    spacing: { 
+                                        before: 400, 
+                                        after: 400
+                                    }
                                 })
                             ],
                             borders: {
@@ -173,7 +192,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
         return rows;
     };
 
-    const exportToWord = async () => {
+    const exportToWord = async () => {debugger
         if (isExporting) return;
         
         if (!greenTableData?.length && !redTableData?.length) {
@@ -226,6 +245,14 @@ const WordExport = ({ greenTableData, redTableData }) => {
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
                             rows: await createTableRows(redTableData, TABLE_TYPE.RED),
                             tableProperties: {
+                                width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
+                                layout: TableLayoutType.FIXED,
+                                margins: {
+                                    top: 0,
+                                    bottom: 0,
+                                    right: TABLE_CONSTANTS.MARGINS.RIGHT,
+                                    left: TABLE_CONSTANTS.MARGINS.LEFT
+                                },
                                 borders: {
                                     top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
                                     bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
@@ -253,6 +280,8 @@ const WordExport = ({ greenTableData, redTableData }) => {
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
                             rows: await createTableRows(greenTableData, TABLE_TYPE.GREEN),
                             tableProperties: {
+                                layout: TableLayoutType.FIXED,
+                                width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
                                 borders: {
                                     top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
                                     bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
@@ -268,16 +297,32 @@ const WordExport = ({ greenTableData, redTableData }) => {
             });
 
             console.log('Document object created, starting to pack...');
+            
+            // Create blob directly in browser environment
             const blob = await Packer.toBlob(doc);
+            
             console.log('Document packed to blob, size:', blob.size);
-            console.log('Blob created, size:', blob.size);
+            console.log('Blob MIME type:', blob.type);
             
             const date = new Date().toISOString().split('T')[0];
             const safeTitle = (documentTitle || 'tables-export').replace(/[^a-zA-Z0-9-]/g, '-');
             const fileName = safeTitle + '-' + date + '.docx';
             
             try {
-                await saveAs(blob, fileName);
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                
+                // Cleanup
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+                
                 console.log('Document saved successfully');
             } catch (saveError) {
                 throw new Error(`Failed to save document: ${saveError.message}`);

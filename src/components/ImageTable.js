@@ -43,7 +43,7 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                     <th colSpan={CELLS_PER_ROW} style={{ color, padding: "40px" }}>
                         <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", padding: "0 10px" }}>
                             <span style={{padding: STYLES.PADDING.MEDIUM, textAlign: STYLES.TEXT_ALIGN.CENTER}}>
-                                חתימות {color === TABLE_TYPE.BLUE ? TABLE_LABELS.ORIGINAL_SIGNATURES : TABLE_LABELS.DISPUTED_SIGNATURES}
+                                חתימות {color === TABLE_TYPE.GREEN ? TABLE_LABELS.ORIGINAL_SIGNATURES : TABLE_LABELS.DISPUTED_SIGNATURES}
                             </span>
                             <button 
                                 onClick={handleSort}
