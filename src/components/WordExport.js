@@ -1,12 +1,12 @@
-import { Document, ImageRun, LineRuleType, Packer, Paragraph, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from 'docx';
+import { Document, ImageRun, Packer, Paragraph, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from 'docx';
 import { useState } from 'react';
-import { TABLE_TYPE, TABLE_CONSTANTS } from '../constants';
+import { TABLE_CONSTANTS, TABLE_TYPE, TABLE_LABELS } from '../constants';
 
 const WordExport = ({ greenTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [documentTitle, setDocumentTitle] = useState('');
 
-    const processImage = async (imageUrl) => {debugger
+    const processImage = async (imageUrl) => {
         try {
             console.log('Processing image:', imageUrl.substring(0, 50) + '...');
             let originalWidth, originalHeight;
@@ -82,7 +82,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
         }
     };
 
-    const createTableRows = async (data, color) => {debugger;
+    const createTableRows = async (data, color) => {
         const rows = [];
         const colorHex = color === TABLE_TYPE.GREEN ? TABLE_CONSTANTS.COLORS.GREEN : TABLE_CONSTANTS.COLORS.RED;
         
@@ -169,7 +169,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
         return rows;
     };
 
-    const exportToWord = async () => {debugger
+    const exportToWord = async () => {
         if (isExporting) return;
         
         if (!greenTableData?.length && !redTableData?.length) {
@@ -208,7 +208,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                          new Paragraph({
                             children: [
                                 new TextRun({
-                                    text: 'חתימות במחלוקת',
+                                    text: TABLE_LABELS.DISPUTED_SIGNATURES,
                                     size: 32,
                                     color: '000000',
                                     bold: true
@@ -243,7 +243,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                         new Paragraph({
                             children: [
                                 new TextRun({
-                                    text: 'חתימות מקוריות',
+                                    text: TABLE_LABELS.ORIGINAL_SIGNATURES,
                                     size: 32,
                                     color: '000000',
                                     bold: true
