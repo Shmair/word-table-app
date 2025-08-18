@@ -322,7 +322,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
 
     return (
         <div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
                 <input
                     type="text"
                     value={documentTitle}

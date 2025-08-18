@@ -1,7 +1,7 @@
 // Table/Document constants for WordExport and other components
 export const TABLE_CONSTANTS = {
     CELLS_PER_ROW: 2,
-    BORDER_SIZE: 20,
+    BORDER_SIZE: 25,
     BORDER_STYLE: 'single',
     CELL_WIDTH: 4500,
     TABLE_WIDTH: 9000,

@@ -33,6 +33,9 @@ const FileUpload = ({ onFileInsert, greenTableData, redTableData }) => {
             display: STYLES.DISPLAY.FLEX, 
             gap: STYLES.PADDING.SMALL, 
             alignItems: STYLES.ALIGN_ITEMS.CENTER, 
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            width: '100%',
             padding: STYLES.PADDING.SMALL 
         }}>
             <input 
