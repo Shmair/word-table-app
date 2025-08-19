@@ -135,7 +135,13 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                     alignment: 'center'
                                 }),
                                 new Paragraph({
-                                    text: '#' + (imageData.number || i + j + 1),
+                                    children: [
+                                        new TextRun({
+                                            text: '#' + (imageData.number || i + j + 1),
+                                            bold: true,
+                                            size: 36
+                                        })
+                                    ],
                                     alignment: 'center',
                                     spacing: { 
                                         before: 400, 
