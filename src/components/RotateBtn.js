@@ -39,26 +39,20 @@ const RotateBtn = ({ imageUrl, onRotateComplete }) => {
 
     return (
         <button
+            className="image-action-btn"
             onClick={handleRotate}
             style={{
-                position: 'absolute',
-                top: '5px',
-                right: '65px', // Position it to the left of the crop button
-                background: 'transparent',
-                color: '#4CAF50',
+                background: 'rgba(255,255,255,0.95)',
+                color: '#2563eb',
                 border: 'none',
+                borderRadius: '8px',
                 padding: 0,
-                width: '24px',
-                height: '24px',
+                width: '28px',
+                height: '28px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px',
-                transition: 'transform 0.2s ease',
-                ':hover': {
-                    transform: 'scale(1.1)'
-                }
+                justifyContent: 'center'
             }}
             title="Rotate Image"
         >

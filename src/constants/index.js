@@ -11,14 +11,15 @@ export const TABLE_CONSTANTS = {
         RIGHT: 10
     },
     COLORS: {
-        GREEN: '#275114',  
-        RED: 'C00000', 
+        GREEN: '275114',
+        RED: 'C00000',
         BLACK: '000000'
     },
     IMAGE_SIZE: {
-        maxWidth: 250,  // Maximum width allowed
-        maxHeight: 250  // Maximum height allowed
-    }
+        maxWidth: 200,
+        maxHeight: 200
+    },
+    FONT_SIZE: 30  // 16px ≈ 12pt, docx uses half-points
 };
 // Table Types
 export const TABLE_TYPE = {
@@ -37,6 +38,25 @@ export const COLORS = {
     RED: 'red',
     GREEN: 'green',
     WHITE: 'white'
+};
+
+// UI Theme (for toolbar, buttons, inputs)
+export const THEME = {
+    primary: '#275114',
+    primaryHover: '#1e3d0f',
+    primaryLight: '#e8f0e6',
+    surface: '#ffffff',
+    surfaceAlt: '#f7f9f6',
+    border: '#d0d9cc',
+    borderFocus: '#275114',
+    text: '#1a1a1a',
+    textMuted: '#5c5c5c',
+    radius: '8px',
+    radiusSm: '6px',
+    shadow: '0 2px 8px rgba(39, 81, 20, 0.08)',
+    shadowHover: '0 4px 12px rgba(39, 81, 20, 0.12)',
+    transition: '0.2s ease',
+    fontFamily: '"Segoe UI", "Helvetica Neue", Arial, sans-serif'
 };
 
 // Styles
@@ -82,6 +102,26 @@ export const IMAGE = {
     DATA_URL_PREFIX: 'data:',
     MIME_TYPE: 'image/jpeg',
     CROSS_ORIGIN: 'anonymous'
+};
+
+// Local storage key for persisting table data
+export const STORAGE_KEY = 'word-table-app-data';
+
+// Export validation (Hebrew)
+export const EXPORT_MESSAGES = {
+    MISSING_TITLE: 'נא להזין שם מסמך',
+    MISSING_IMAGES: 'אין תמונות לייצוא. הוסף תמונות תחילה.',
+    EMPTY_RED_TABLE: 'נא למלא את טבלת חתימות במחלוקת',
+    EMPTY_GREEN_TABLE: 'נא למלא את טבלת חתימות מקוריות'
+};
+
+// File input labels (Hebrew)
+export const FILE_INPUT_LABELS = {
+    CHOOSE_FILES: 'בחר קבצים',
+    NO_FILE_CHOSEN: 'לא נבחר קובץ',
+    FILES_SELECTED: (n) => `${n} קבצים נבחרו`,
+    DRAG_HINT: 'או גרור קבצים לכאן',
+    READ_ERROR_HINT: 'נסה לגרור קבצים במקום, או להעתיק לתיקייה מקומית (לא OneDrive)'
 };
 
 // Element IDs

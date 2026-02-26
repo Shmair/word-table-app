@@ -1,11 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ColorTable from './components/ColorTable';
 import FileInsert from './components/FileInsert';
-import { TABLE_TYPE, COLORS, STYLES } from './constants';
+import { TABLE_TYPE, COLORS, STYLES, STORAGE_KEY } from './constants';
+
+const loadFromStorage = () => {
+    try {
+        const cached = localStorage.getItem(STORAGE_KEY);
+        if (cached) {
+            const { green, red } = JSON.parse(cached);
+            return { green: green || [], red: red || [] };
+        }
+    } catch (e) { /* ignore */ }
+    return { green: [], red: [] };
+};
 
 const App = () => {
-    const [greenTableData, setgreenTableData] = useState([]);
-    const [redTableData, setRedTableData] = useState([]);
+    const [greenTableData, setgreenTableData] = useState(() => loadFromStorage().green);
+    const [redTableData, setRedTableData] = useState(() => loadFromStorage().red);
+    const [tableChoice, setTableChoice] = useState(TABLE_TYPE.RED);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                green: greenTableData,
+                red: redTableData
+            }));
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                console.warn('Storage full: images not persisted. Try removing some.');
+            }
+        }
+    }, [greenTableData, redTableData]);
 
     const handleUpdateImageNumber = (index, number, tableType) => {
         if (tableType === TABLE_TYPE.GREEN) {
@@ -47,62 +72,53 @@ const App = () => {
         }
     };
    
-    const handleFileInsert = (files, tableType) => {
-        const processFile = (file, index) => {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    resolve({
-                        url: e.target.result,
-                        number: null // Will use default numbering until user changes it
-                    });
-                };
-                reader.readAsDataURL(file);
-            });
-        };
+    const handleFileInsert = (imageData, tableType) => {
+        const list = Array.isArray(imageData) ? imageData : [];
+        if (list.length === 0) return;
 
-        // Process all files in parallel
-        Promise.all(Array.from(files).map((file, index) => processFile(file, index)))
-            .then(imageData => {
-                const processedImageData = imageData.map((img, idx) => ({
+        const processedImageData = list.map((img, idx) => ({
+            ...img,
+            number: img.number != null ? img.number : idx + 1
+        }));
+
+        if (tableType === TABLE_TYPE.GREEN) {
+            setgreenTableData((prevData) => {
+                const startNumber = prevData.length > 0
+                    ? Math.max(...prevData.filter((item) => item && item.number).map((item) => item.number || 0)) + 1
+                    : 1;
+                return [...prevData, ...processedImageData.map((img, idx) => ({
                     ...img,
-                    number: idx + 1 // Set initial sequential numbers
-                }));
-                
-                if (tableType === TABLE_TYPE.GREEN) {
-                    setgreenTableData(prevData => {
-                        const startNumber = prevData.length > 0 
-                            ? Math.max(...prevData.filter(item => item && item.number).map(item => item.number || 0)) + 1 
-                            : 1;
-                        return [...prevData, ...processedImageData.map((img, idx) => ({
-                            ...img,
-                            number: startNumber + idx
-                        }))];
-                    });
-                } else if (tableType === TABLE_TYPE.RED) {
-                    setRedTableData(prevData => {
-                        const startNumber = prevData.length > 0 
-                            ? Math.max(...prevData.filter(item => item && item.number).map(item => item.number || 0)) + 1 
-                            : 1;
-                        return [...prevData, ...processedImageData.map((img, idx) => ({
-                            ...img,
-                            number: startNumber + idx
-                        }))];
-                    });
-                }
+                    number: startNumber + idx
+                }))];
             });
-};                  
+        } else if (tableType === TABLE_TYPE.RED) {
+            setRedTableData((prevData) => {
+                const startNumber = prevData.length > 0
+                    ? Math.max(...prevData.filter((item) => item && item.number).map((item) => item.number || 0)) + 1
+                    : 1;
+                return [...prevData, ...processedImageData.map((img, idx) => ({
+                    ...img,
+                    number: startNumber + idx
+                }))];
+            });
+        }
+    };                  
     return (
-        <div align="center" style={{ padding: STYLES.PADDING.DEFAULT }}>
-            <h1>חתימות</h1>
+        <div className="app-container" style={{ padding: STYLES.PADDING.DEFAULT, maxWidth: 1300, margin: '0 auto', direction: 'rtl' }}>
+            <h1 className="app-title">חתימות</h1>
             <FileInsert 
                 onFileInsert={handleFileInsert}
                 greenTableData={greenTableData}
                 redTableData={redTableData}
+                tableChoice={tableChoice}
+                onTableChoiceChange={setTableChoice}
             />
              <ColorTable 
                 data={redTableData}
                 color={COLORS.RED}
+                tableType={TABLE_TYPE.RED}
+                isSelected={tableChoice === TABLE_TYPE.RED}
+                onSelect={() => setTableChoice(TABLE_TYPE.RED)}
                 onUpdateImage={(index, updatedImage) => {
                     setRedTableData(prev => {
                         const newData = Array(prev.length).fill(null);
@@ -123,6 +139,9 @@ const App = () => {
             <ColorTable 
                 data={greenTableData}
                 color={COLORS.GREEN}
+                tableType={TABLE_TYPE.GREEN}
+                isSelected={tableChoice === TABLE_TYPE.GREEN}
+                onSelect={() => setTableChoice(TABLE_TYPE.GREEN)}
                 onUpdateImage={(index, updatedImage) => {
                     setgreenTableData(prev => {
                         const newData = Array(prev.length).fill(null);

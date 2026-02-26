@@ -1,0 +1,91 @@
+import {
+    TABLE_CONSTANTS,
+    TABLE_TYPE,
+    TABLE_LABELS,
+    COLORS,
+    STORAGE_KEY,
+    FILE_INPUT_LABELS,
+    STYLES,
+    SIZES,
+    EXPORT_MESSAGES
+} from './index';
+
+describe('constants', () => {
+    describe('TABLE_CONSTANTS', () => {
+        it('has expected structure', () => {
+            expect(TABLE_CONSTANTS.CELLS_PER_ROW).toBe(2);
+            expect(TABLE_CONSTANTS.BORDER_SIZE).toBe(25);
+            expect(TABLE_CONSTANTS.CELL_WIDTH).toBe(4500);
+            expect(TABLE_CONSTANTS.TABLE_WIDTH).toBe(9000);
+        });
+        it('has color hex values', () => {
+            expect(TABLE_CONSTANTS.COLORS.GREEN).toBe('275114');
+            expect(TABLE_CONSTANTS.COLORS.RED).toBe('C00000');
+        });
+        it('has image size limits', () => {
+            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxWidth).toBe(200);
+            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxHeight).toBe(200);
+        });
+    });
+
+    describe('TABLE_TYPE', () => {
+        it('defines GREEN and RED', () => {
+            expect(TABLE_TYPE.GREEN).toBe('GREEN');
+            expect(TABLE_TYPE.RED).toBe('red');
+        });
+    });
+
+    describe('TABLE_LABELS', () => {
+        it('has Hebrew labels', () => {
+            expect(TABLE_LABELS.ORIGINAL_SIGNATURES).toBe('חתימות מקוריות');
+            expect(TABLE_LABELS.DISPUTED_SIGNATURES).toBe('חתימות במחלוקת');
+        });
+    });
+
+    describe('COLORS', () => {
+        it('has display colors', () => {
+            expect(COLORS.RED).toBe('red');
+            expect(COLORS.GREEN).toBe('green');
+        });
+    });
+
+    describe('STORAGE_KEY', () => {
+        it('is a non-empty string', () => {
+            expect(typeof STORAGE_KEY).toBe('string');
+            expect(STORAGE_KEY.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('FILE_INPUT_LABELS', () => {
+        it('has static labels', () => {
+            expect(FILE_INPUT_LABELS.CHOOSE_FILES).toBe('בחר קבצים');
+            expect(FILE_INPUT_LABELS.NO_FILE_CHOSEN).toBe('לא נבחר קובץ');
+        });
+        it('FILES_SELECTED is a function', () => {
+            expect(typeof FILE_INPUT_LABELS.FILES_SELECTED).toBe('function');
+            expect(FILE_INPUT_LABELS.FILES_SELECTED(3)).toBe('3 קבצים נבחרו');
+        });
+    });
+
+    describe('STYLES', () => {
+        it('has padding values', () => {
+            expect(STYLES.PADDING.DEFAULT).toBe('20px');
+            expect(STYLES.PADDING.TINY).toBe('5px');
+        });
+    });
+
+    describe('SIZES', () => {
+        it('has image dimensions', () => {
+            expect(SIZES.IMAGE.WIDTH).toBe('400px');
+            expect(SIZES.IMAGE.HEIGHT).toBe('400px');
+        });
+    });
+
+    describe('EXPORT_MESSAGES', () => {
+        it('has Hebrew validation messages', () => {
+            expect(EXPORT_MESSAGES.MISSING_TITLE).toBeTruthy();
+            expect(EXPORT_MESSAGES.EMPTY_RED_TABLE).toBeTruthy();
+            expect(EXPORT_MESSAGES.EMPTY_GREEN_TABLE).toBeTruthy();
+        });
+    });
+});

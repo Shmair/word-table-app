@@ -1,10 +1,26 @@
-import { Document, ImageRun, Packer, Paragraph, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from 'docx';
+import { AlignmentType, Document, Footer, ImageRun, Packer, Paragraph, PageNumber, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from 'docx';
 import { useState } from 'react';
-import { TABLE_CONSTANTS, TABLE_TYPE, TABLE_LABELS } from '../constants';
+import { TABLE_CONSTANTS, TABLE_TYPE, TABLE_LABELS, EXPORT_MESSAGES } from '../constants';
 
 const WordExport = ({ greenTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [documentTitle, setDocumentTitle] = useState('');
+    const [destinationDirHandle, setDestinationDirHandle] = useState(null);
+    const [destinationFolderName, setDestinationFolderName] = useState('');
+
+    const supportsDestinationFolder = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+
+    const handleChooseDestinationFolder = async () => {
+        try {
+            const handle = await window.showDirectoryPicker();
+            setDestinationDirHandle(handle);
+            setDestinationFolderName(handle.name);
+        } catch (e) {
+            if (e.name !== 'AbortError') {
+                alert('Could not select folder: ' + (e.message || 'Permission denied'));
+            }
+        }
+    };
 
     const processImage = async (imageUrl) => {
         try {
@@ -70,8 +86,9 @@ const WordExport = ({ greenTableData, redTableData }) => {
             }
             
             const byteArray = new Uint8Array(byteNumbers);
+            const buffer = byteArray.buffer.slice(byteArray.byteOffset, byteArray.byteOffset + byteArray.byteLength);
             return {
-                buffer: byteArray.buffer,
+                buffer,
                 width: finalWidth,
                 height: finalHeight
             };
@@ -103,6 +120,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                 right: { style: 'nil', size: 0 },
                             },
                             width: { size: TABLE_CONSTANTS.CELL_WIDTH, type: WidthType.DXA },
+                            height: { size: 6500, rule: 'atLeast' },
                             verticalAlign: 'center'
                         })
                     );
@@ -117,14 +135,16 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                 new Paragraph({
                                     children: [
                                         new ImageRun({
+                                            type: 'jpg',
                                             data: processedImage.buffer,
                                             transformation: {
                                                 width: processedImage.width,
                                                 height: processedImage.height
                                             },
-                                            embedding: {
+                                            altText: {
                                                 title: `image-${i}-${j}`,
                                                 description: `Image ${i}-${j}`,
+                                                name: `image-${i}-${j}`
                                             }
                                         })
                                     ],
@@ -139,7 +159,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                         new TextRun({
                                             text: '#' + (imageData.number || i + j + 1),
                                             bold: true,
-                                            size: 36
+                                            size: TABLE_CONSTANTS.FONT_SIZE
                                         })
                                     ],
                                     alignment: 'center',
@@ -157,7 +177,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                             },
                             width: { size: TABLE_CONSTANTS.CELL_WIDTH, type: WidthType.DXA },
                             verticalAlign: 'center',
-                            height: { size: 6000, rule: 'atLeast' }
+                            height: { size: 6500, rule: 'atLeast' }
                         })
                     );
                 } catch (error) {
@@ -165,21 +185,34 @@ const WordExport = ({ greenTableData, redTableData }) => {
                     cells.push(
                         new TableCell({
                             children: [new Paragraph({ text: 'Image error' })],
-                            width: { size: TABLE_CONSTANTS.CELL_WIDTH, type: WidthType.DXA }
+                            width: { size: TABLE_CONSTANTS.CELL_WIDTH, type: WidthType.DXA },
+                            height: { size: 6500, rule: 'atLeast' },
+                            verticalAlign: 'center'
                         })
                     );
                 }
             }
-            rows.push(new TableRow({ children: cells }));
+            rows.push(new TableRow({ children: cells, cantSplit: true }));
         }
         return rows;
     };
 
+    const hasTitle = !!documentTitle?.trim();
+    const hasGreenImages = !!greenTableData?.length;
+    const hasRedImages = !!redTableData?.length;
+    const canExport = hasTitle && hasGreenImages && hasRedImages;
+
+    const getDisabledMessage = () => {
+        if (!hasTitle) return EXPORT_MESSAGES.MISSING_TITLE;
+        if (!hasRedImages) return EXPORT_MESSAGES.EMPTY_RED_TABLE;
+        if (!hasGreenImages) return EXPORT_MESSAGES.EMPTY_GREEN_TABLE;
+        return '';
+    };
+
     const exportToWord = async () => {
         if (isExporting) return;
-        
-        if (!greenTableData?.length && !redTableData?.length) {
-            alert('No images to export. Please add some images first.');
+        if (!canExport) {
+            alert(getDisabledMessage());
             return;
         }
         
@@ -200,18 +233,43 @@ const WordExport = ({ greenTableData, redTableData }) => {
                             }
                         }
                     },
+                    footers: {
+                        default: new Footer({
+                            children: [
+                                new Paragraph({
+                                    alignment: AlignmentType.CENTER,
+                                    children: [
+                                        new TextRun({
+                                            children: ['-', PageNumber.CURRENT, '-'],
+                                            size: TABLE_CONSTANTS.FONT_SIZE
+                                        })
+                                    ]
+                                })
+                            ]
+                        })
+                    },
                     children: [
                         new Paragraph({
-                            text: new Date().toLocaleDateString('en-GB'),
+                            children: [
+                                new TextRun({
+                                    text: new Date().toLocaleDateString('en-GB'),
+                                    size: TABLE_CONSTANTS.FONT_SIZE
+                                })
+                            ],
                             spacing: { after: 400 }
                         }),
                         new Paragraph({
-                            text: documentTitle || 'Tables Export',
-                            heading: 'Title',
+                            children: [
+                                new TextRun({
+                                    text: documentTitle || 'Tables Export',
+                                    bold: true,
+                                    size: 48
+                                })
+                            ],
                             alignment: 'center',
                             spacing: { after: 400 }
                         }),
-                         new Paragraph({
+                        new Paragraph({
                             children: [
                                 new TextRun({
                                     text: TABLE_LABELS.DISPUTED_SIGNATURES,
@@ -221,8 +279,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                 })
                             ],
                             alignment: 'center',
-                            spacing: { before: 400, after: 400 },
-                            bidirectional: true
+                            spacing: { before: 400, after: 400 }
                         }),
                         new Table({
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
@@ -256,8 +313,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                 })
                             ],
                             alignment: 'center',
-                            spacing: { after: 400 , before: 400 },
-                            bidirectional: true
+                            spacing: { after: 400, before: 400 }
                         }),
                         new Table({
                             width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
@@ -288,37 +344,50 @@ const WordExport = ({ greenTableData, redTableData }) => {
             console.log('Blob MIME type:', blob.type);
             
             const date = new Date().toISOString().split('T')[0];
-            const safeTitle = (documentTitle || 'tables-export').replace(/[^a-zA-Z0-9-]/g, '-');
+            const safeTitle = (documentTitle || 'tables-export').replace(/[^a-zA-Z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'export';
             const fileName = safeTitle + '-' + date + '.docx';
             
-            try {
-                // Create download link
+            const triggerDownload = () => {
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = fileName;
                 document.body.appendChild(link);
                 link.click();
-                
-                // Cleanup
                 setTimeout(() => {
                     document.body.removeChild(link);
                     window.URL.revokeObjectURL(url);
                 }, 0);
-                
+            };
+
+            try {
+                if (destinationDirHandle) {
+                    try {
+                        const fileHandle = await destinationDirHandle.getFileHandle(fileName, { create: true });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(blob);
+                        await writable.close();
+                        console.log('Document saved to folder:', destinationFolderName);
+                    } catch (folderError) {
+                        console.warn('Folder save failed, falling back to download:', folderError);
+                        triggerDownload();
+                    }
+                } else {
+                    triggerDownload();
+                }
                 console.log('Document saved successfully');
             } catch (saveError) {
-                throw new Error(`Failed to save document: ${saveError.message}`);
+                throw new Error(saveError?.message || 'Could not save the file');
             }
         } catch (error) {
             console.error('Error details:', error);
             let errorMessage = 'Error creating Word document: ';
-            if (error.message.includes('base64')) {
+            if (error?.message?.includes('base64')) {
                 errorMessage += 'Invalid image data';
-            } else if (error.message.includes('save')) {
-                errorMessage += 'Could not save the file';
+            } else if (error?.message) {
+                errorMessage += error.message;
             } else {
-                errorMessage += error.message || 'Unknown error occurred';
+                errorMessage += 'Unknown error occurred';
             }
             alert(errorMessage);
         } finally {
@@ -327,24 +396,44 @@ const WordExport = ({ greenTableData, redTableData }) => {
     };
 
     return (
-        <div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
-                <input
-                    type="text"
-                    value={documentTitle}
-                    onChange={(e) => setDocumentTitle(e.target.value)}
-                    placeholder="Enter document title"
-                    style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
-                />
-                <button 
-                    onClick={exportToWord} 
-                    disabled={isExporting || !documentTitle}
-                    style={{ padding: '6px 12px' }}
-                >
-                    {isExporting ? 'Exporting...' : 'Export to Word'}
-                </button>
-            </div>
-        </div>
+        <>
+            <span className="toolbar-divider" aria-hidden />
+            <input
+                type="text"
+                value={documentTitle}
+                onChange={(e) => setDocumentTitle(e.target.value)}
+                placeholder="שם המסמך"
+                style={{ minWidth: 160 }}
+            />
+            {supportsDestinationFolder && (
+                <>
+                    <button
+                        type="button"
+                        className="btn btn-secondary toolbar-folder-btn"
+                        onClick={handleChooseDestinationFolder}
+                    >
+                        {destinationFolderName ? `תיקייה: ${destinationFolderName}` : 'בחר תיקיית יעד'}
+                    </button>
+                    {destinationFolderName && (
+                        <button
+                            type="button"
+                            className="btn btn-secondary btn-small"
+                            onClick={() => { setDestinationDirHandle(null); setDestinationFolderName(''); }}
+                        >
+                            נקה
+                        </button>
+                    )}
+                </>
+            )}
+            <button
+                type="button"
+                className="btn btn-primary"
+                onClick={exportToWord}
+                title={!canExport ? getDisabledMessage() : undefined}
+            >
+                {isExporting ? 'מייצא...' : 'ייצוא ל-Word'}
+            </button>
+        </>
     );
     
 };

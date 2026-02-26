@@ -1,4 +1,4 @@
-﻿import { SIZES, STYLES, TABLE_TYPE, TABLE_LABELS } from '../constants';
+import { SIZES, STYLES, COLORS, TABLE_LABELS } from '../constants';
 import CropBtn from './CropBtn';
 import RemoveBtn from './RemoveBtn';
 import RotateBtn from './RotateBtn';
@@ -37,25 +37,29 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
     }
 
     return (
-        <table style={{ border: `4px solid ${color}`, margin: "20px", borderCollapse: "collapse" }}>
+        <table className={`table-bordered table-${color}`} style={{ margin: 0, borderCollapse: "collapse", width: "100%" }}>
             <thead>
                 <tr>
-                    <th colSpan={CELLS_PER_ROW} style={{ color, padding: "40px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", padding: "0 10px" }}>
+                    <th colSpan={CELLS_PER_ROW} style={{ color, padding: "40px", position: "relative" }}>
+                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "0 44px" }}>
                             <span style={{padding: STYLES.PADDING.MEDIUM, textAlign: STYLES.TEXT_ALIGN.CENTER}}>
-                                חתימות {color === TABLE_TYPE.GREEN ? TABLE_LABELS.ORIGINAL_SIGNATURES : TABLE_LABELS.DISPUTED_SIGNATURES}
+                                {color === COLORS.GREEN ? TABLE_LABELS.ORIGINAL_SIGNATURES : TABLE_LABELS.DISPUTED_SIGNATURES}
                             </span>
                             <button 
+                                className="sort-btn table-sort-btn"
                                 onClick={handleSort}
                                 disabled={!data || data.length === 0}
                                 style={{
-                                    padding: "5px",
+                                    position: "absolute",
+                                    insetInlineEnd: "20px",
+                                    padding: "8px 16px",
                                     backgroundColor: color,
                                     color: "white",
                                     border: "none",
-                                    borderRadius: "4px",
+                                    borderRadius: "8px",
                                     cursor: data && data.length > 0 ? "pointer" : "not-allowed",
-                                    opacity: data && data.length > 0 ? 1 : 0.5
+                                    opacity: data && data.length > 0 ? 1 : 0.5,
+                                    fontWeight: 500
                                 }}
                             >
                                 סדר לפי מספר
@@ -68,15 +72,13 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                 {rows.map((row, rowIdx) => (
                     <tr key={rowIdx}>
                         {row.map((imageData, cellIdx) => (
-                            <td key={cellIdx} style={{ 
-                                border: `2px solid ${color}`, 
+                            <td key={cellIdx} className={`image-cell image-cell-${color}`} style={{ 
                                 padding: "25px",
                                 textAlign: "center"
                             }}>
                                 {imageData ? (
-                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "15px", position: "relative" }}>
-                                        <div style={{ position: "absolute", top: 0, right: 0, display: "flex", gap: "10px" }}>
-                                            <RemoveBtn onClick={() => onRemoveImage(rowIdx * CELLS_PER_ROW + cellIdx)} />
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                                        <div className="image-actions-row">
                                             <RotateBtn 
                                                 imageUrl={imageData.url}
                                                 onRotateComplete={(rotatedUrl) => {
@@ -95,6 +97,7 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                                     });
                                                 }}
                                             />
+                                            <RemoveBtn onClick={() => onRemoveImage(rowIdx * CELLS_PER_ROW + cellIdx)} />
                                         </div>
                                         <img 
                                             src={imageData.url} 
@@ -114,6 +117,7 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                             <input
                                                 type="number"
                                                 min="1"
+                                                className="image-number-input"
                                                 value={imageData.number || rowIdx * CELLS_PER_ROW + cellIdx + 1}
                                                 onChange={(e) => handleNumberChange(rowIdx * CELLS_PER_ROW + cellIdx, e.target.value)}
                                                 style={{
@@ -128,10 +132,10 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                         </div>
                                     </div>
                                 ) : (
-                                    <div style={{ 
-                                        width: SIZES.IMAGE.WIDTH, 
-                                        height: SIZES.IMAGE.HEIGHT 
-                                    }} />
+                                    <div 
+                                        className="image-cell-empty"
+                                        style={{ width: SIZES.IMAGE.WIDTH, height: SIZES.IMAGE.HEIGHT }} 
+                                    />
                                 )}
                             </td>
                         ))}
