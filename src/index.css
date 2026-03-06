@@ -270,6 +270,9 @@ body {
 }
 
 .image-cell img {
+  width: 520px;
+  height: 520px;
+  object-fit: contain;
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   transition: box-shadow 0.2s ease, transform 0.2s ease;

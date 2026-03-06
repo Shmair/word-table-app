@@ -16,8 +16,8 @@ export const TABLE_CONSTANTS = {
         BLACK: '000000'
     },
     IMAGE_SIZE: {
-        maxWidth: 200,
-        maxHeight: 200
+        maxWidth: 300,
+        maxHeight: 300
     },
     FONT_SIZE: 30  // 16px ≈ 12pt, docx uses half-points
 };

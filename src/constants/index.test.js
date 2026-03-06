@@ -76,8 +76,8 @@ describe('constants', () => {
 
     describe('SIZES', () => {
         it('has image dimensions', () => {
-            expect(SIZES.IMAGE.WIDTH).toBe('400px');
-            expect(SIZES.IMAGE.HEIGHT).toBe('400px');
+            expect(SIZES.IMAGE.WIDTH).toBe('520px');
+            expect(SIZES.IMAGE.HEIGHT).toBe('520px');
         });
     });
 
