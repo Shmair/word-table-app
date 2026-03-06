@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/word-table-app/static/css/main.7832a9ef.css",
-    "main.js": "/word-table-app/static/js/main.6f497998.js",
+    "main.js": "/word-table-app/static/js/main.aaa9a163.js",
     "index.html": "/word-table-app/index.html",
     "main.7832a9ef.css.map": "/word-table-app/static/css/main.7832a9ef.css.map",
-    "main.6f497998.js.map": "/word-table-app/static/js/main.6f497998.js.map"
+    "main.aaa9a163.js.map": "/word-table-app/static/js/main.aaa9a163.js.map"
   },
   "entrypoints": [
     "static/css/main.7832a9ef.css",
-    "static/js/main.6f497998.js"
+    "static/js/main.aaa9a163.js"
   ]
 }
