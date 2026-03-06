@@ -97,6 +97,9 @@ export const DOCUMENT = {
     COLORS: TABLE_CONSTANTS.COLORS
 };
 
+// Proofing language for Word (bidi = complex script / RTL)
+export const LANG_HEBREW = { bidi: 'he-IL' };
+
 // Image Settings
 export const IMAGE = {
     DATA_URL_PREFIX: 'data:',

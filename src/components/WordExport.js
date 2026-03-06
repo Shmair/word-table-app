@@ -1,6 +1,7 @@
 import { AlignmentType, Document, Footer, ImageRun, Packer, Paragraph, PageNumber, Table, TableCell, TableLayoutType, TableRow, TextRun, WidthType } from 'docx';
 import { useState } from 'react';
-import { TABLE_CONSTANTS, TABLE_TYPE, TABLE_LABELS, EXPORT_MESSAGES } from '../constants';
+import { TABLE_CONSTANTS, TABLE_TYPE, TABLE_LABELS, EXPORT_MESSAGES, LANG_HEBREW } from '../constants';
+import { numberToHebrewLetter } from '../utils/hebrewNumbers';
 
 const WordExport = ({ greenTableData, redTableData }) => {
     const [isExporting, setIsExporting] = useState(false);
@@ -99,14 +100,6 @@ const WordExport = ({ greenTableData, redTableData }) => {
         }
     };
 
-    const numberToHebrewLetter = (n) => {
-        const num = typeof n === 'number' ? n : parseInt(n, 10);
-        if (isNaN(num) || num < 1) return String(n ?? '');
-        const alefBet = 'אבגדהוזחטיכלמנסעפצקרשת';
-        if (num <= 22) return alefBet[num - 1];
-        return String(num);
-    };
-
     const createTableRows = async (data, color) => {
         const rows = [];
         const colorHex = color === TABLE_TYPE.GREEN ? TABLE_CONSTANTS.COLORS.GREEN : TABLE_CONSTANTS.COLORS.RED;
@@ -181,7 +174,8 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                                 ? numberToHebrewLetter(imageData.number || i + j + 1)
                                                 : '#' + (imageData.number || i + j + 1),
                                             bold: true,
-                                            size: TABLE_CONSTANTS.FONT_SIZE
+                                            size: TABLE_CONSTANTS.FONT_SIZE,
+                                            language: LANG_HEBREW
                                         })
                                     ],
                                     alignment: 'center',
@@ -254,7 +248,8 @@ const WordExport = ({ greenTableData, redTableData }) => {
                         new TextRun({
                             text: documentTitle || 'Tables Export',
                             bold: true,
-                            size: 48
+                            size: 48,
+                            language: LANG_HEBREW
                         })
                     ],
                     alignment: 'center',
@@ -270,7 +265,8 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                 text: TABLE_LABELS.DISPUTED_SIGNATURES,
                                 size: 32,
                                 color: '000000',
-                                bold: true
+                                bold: true,
+                                language: LANG_HEBREW
                             })
                         ],
                         alignment: 'center',
@@ -304,7 +300,8 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                 text: TABLE_LABELS.ORIGINAL_SIGNATURES,
                                 size: 32,
                                 color: '000000',
-                                bold: true
+                                bold: true,
+                                language: LANG_HEBREW
                             })
                         ],
                         alignment: 'center',

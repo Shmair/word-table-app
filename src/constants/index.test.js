@@ -7,7 +7,8 @@ import {
     FILE_INPUT_LABELS,
     STYLES,
     SIZES,
-    EXPORT_MESSAGES
+    EXPORT_MESSAGES,
+    LANG_HEBREW
 } from './index';
 
 describe('constants', () => {
@@ -23,8 +24,8 @@ describe('constants', () => {
             expect(TABLE_CONSTANTS.COLORS.RED).toBe('C00000');
         });
         it('has image size limits', () => {
-            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxWidth).toBe(200);
-            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxHeight).toBe(200);
+            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxWidth).toBe(300);
+            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxHeight).toBe(300);
         });
     });
 
@@ -76,16 +77,21 @@ describe('constants', () => {
 
     describe('SIZES', () => {
         it('has image dimensions', () => {
-            expect(SIZES.IMAGE.WIDTH).toBe('520px');
-            expect(SIZES.IMAGE.HEIGHT).toBe('520px');
+            expect(SIZES.IMAGE.WIDTH).toBe('400px');
+            expect(SIZES.IMAGE.HEIGHT).toBe('400px');
         });
     });
 
     describe('EXPORT_MESSAGES', () => {
         it('has Hebrew validation messages', () => {
-            expect(EXPORT_MESSAGES.MISSING_TITLE).toBeTruthy();
-            expect(EXPORT_MESSAGES.EMPTY_RED_TABLE).toBeTruthy();
-            expect(EXPORT_MESSAGES.EMPTY_GREEN_TABLE).toBeTruthy();
+            expect(EXPORT_MESSAGES.MISSING_TITLE).toBe('נא להזין שם מסמך');
+            expect(EXPORT_MESSAGES.MISSING_IMAGES).toBe('נא למלא לפחות טבלה אחת בתמונות');
+        });
+    });
+
+    describe('LANG_HEBREW', () => {
+        it('sets bidi to he-IL for Word proofing', () => {
+            expect(LANG_HEBREW.bidi).toBe('he-IL');
         });
     });
 });
