@@ -99,9 +99,29 @@ const WordExport = ({ greenTableData, redTableData }) => {
         }
     };
 
+    const numberToHebrewLetter = (n) => {
+        const num = typeof n === 'number' ? n : parseInt(n, 10);
+        if (isNaN(num) || num < 1) return String(n ?? '');
+        const alefBet = 'אבגדהוזחטיכלמנסעפצקרשת';
+        if (num <= 22) return alefBet[num - 1];
+        return String(num);
+    };
+
     const createTableRows = async (data, color) => {
         const rows = [];
         const colorHex = color === TABLE_TYPE.GREEN ? TABLE_CONSTANTS.COLORS.GREEN : TABLE_CONSTANTS.COLORS.RED;
+
+        if (!data?.length) {
+            const emptyCell = () => new TableCell({
+                children: [new Paragraph({ text: '' })],
+                borders: { top: { style: 'nil', size: 0 }, bottom: { style: 'nil', size: 0 }, left: { style: 'nil', size: 0 }, right: { style: 'nil', size: 0 } },
+                width: { size: TABLE_CONSTANTS.CELL_WIDTH, type: WidthType.DXA },
+                height: { size: 6500, rule: 'atLeast' },
+                verticalAlign: 'center'
+            });
+            rows.push(new TableRow({ children: [emptyCell(), emptyCell()], cantSplit: true }));
+            return rows;
+        }
         
         for (let i = 0; i < data.length; i += TABLE_CONSTANTS.CELLS_PER_ROW) {
             const rowData = data.slice(i, i + TABLE_CONSTANTS.CELLS_PER_ROW);
@@ -157,16 +177,15 @@ const WordExport = ({ greenTableData, redTableData }) => {
                                 new Paragraph({
                                     children: [
                                         new TextRun({
-                                            text: '#' + (imageData.number || i + j + 1),
+                                            text: color === TABLE_TYPE.RED
+                                                ? numberToHebrewLetter(imageData.number || i + j + 1)
+                                                : '#' + (imageData.number || i + j + 1),
                                             bold: true,
                                             size: TABLE_CONSTANTS.FONT_SIZE
                                         })
                                     ],
                                     alignment: 'center',
-                                    spacing: { 
-                                        before: 400, 
-                                        after: 400
-                                    }
+                                    spacing: { before: 400, after: 400 }
                                 })
                             ],
                             borders: {
@@ -192,7 +211,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                     );
                 }
             }
-            rows.push(new TableRow({ children: cells, cantSplit: true }));
+            rows.push(new TableRow({ children: cells.reverse(), cantSplit: true }));
         }
         return rows;
     };
@@ -200,12 +219,12 @@ const WordExport = ({ greenTableData, redTableData }) => {
     const hasTitle = !!documentTitle?.trim();
     const hasGreenImages = !!greenTableData?.length;
     const hasRedImages = !!redTableData?.length;
-    const canExport = hasTitle && hasGreenImages && hasRedImages;
+    const hasAnyImages = hasGreenImages || hasRedImages;
+    const canExport = hasTitle && hasAnyImages;
 
     const getDisabledMessage = () => {
         if (!hasTitle) return EXPORT_MESSAGES.MISSING_TITLE;
-        if (!hasRedImages) return EXPORT_MESSAGES.EMPTY_RED_TABLE;
-        if (!hasGreenImages) return EXPORT_MESSAGES.EMPTY_GREEN_TABLE;
+        if (!hasAnyImages) return EXPORT_MESSAGES.MISSING_IMAGES;
         return '';
     };
 
@@ -219,8 +238,97 @@ const WordExport = ({ greenTableData, redTableData }) => {
         try {
             setIsExporting(true);
             console.log('Starting document creation...');
-        
-            // Create document with properties
+
+            const sectionChildren = [
+                new Paragraph({
+                    children: [
+                        new TextRun({
+                            text: new Date().toLocaleDateString('en-GB'),
+                            size: TABLE_CONSTANTS.FONT_SIZE
+                        })
+                    ],
+                    spacing: { after: 400 }
+                }),
+                new Paragraph({
+                    children: [
+                        new TextRun({
+                            text: documentTitle || 'Tables Export',
+                            bold: true,
+                            size: 48
+                        })
+                    ],
+                    alignment: 'center',
+                    spacing: { after: 400 }
+                })
+            ];
+
+            if (redTableData?.length) {
+                sectionChildren.push(
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: TABLE_LABELS.DISPUTED_SIGNATURES,
+                                size: 32,
+                                color: '000000',
+                                bold: true
+                            })
+                        ],
+                        alignment: 'center',
+                        spacing: { before: 400, after: 400 }
+                    })
+                );
+                sectionChildren.push(new Table({
+                    width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
+                    rows: await createTableRows(redTableData, TABLE_TYPE.RED),
+                    tableProperties: {
+                        width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
+                        layout: TableLayoutType.FIXED,
+                        margins: { top: 0, bottom: 0, right: TABLE_CONSTANTS.MARGINS.RIGHT, left: TABLE_CONSTANTS.MARGINS.LEFT },
+                        borders: {
+                            top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                            bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                            left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                            right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                            insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
+                            insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED }
+                        }
+                    }
+                }));
+            }
+
+            if (greenTableData?.length) {
+                sectionChildren.push(
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: TABLE_LABELS.ORIGINAL_SIGNATURES,
+                                size: 32,
+                                color: '000000',
+                                bold: true
+                            })
+                        ],
+                        alignment: 'center',
+                        spacing: { after: 400, before: 400 }
+                    })
+                );
+                sectionChildren.push(new Table({
+                    width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
+                    rows: await createTableRows(greenTableData, TABLE_TYPE.GREEN),
+                    tableProperties: {
+                        layout: TableLayoutType.FIXED,
+                        width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
+                        borders: {
+                            top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                            bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                            left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                            right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                            insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
+                            insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN }
+                        }
+                    }
+                }));
+            }
+
             const doc = new Document({
                 sections: [{
                     properties: {
@@ -248,90 +356,7 @@ const WordExport = ({ greenTableData, redTableData }) => {
                             ]
                         })
                     },
-                    children: [
-                        new Paragraph({
-                            children: [
-                                new TextRun({
-                                    text: new Date().toLocaleDateString('en-GB'),
-                                    size: TABLE_CONSTANTS.FONT_SIZE
-                                })
-                            ],
-                            spacing: { after: 400 }
-                        }),
-                        new Paragraph({
-                            children: [
-                                new TextRun({
-                                    text: documentTitle || 'Tables Export',
-                                    bold: true,
-                                    size: 48
-                                })
-                            ],
-                            alignment: 'center',
-                            spacing: { after: 400 }
-                        }),
-                        new Paragraph({
-                            children: [
-                                new TextRun({
-                                    text: TABLE_LABELS.DISPUTED_SIGNATURES,
-                                    size: 32,
-                                    color: '000000',
-                                    bold: true
-                                })
-                            ],
-                            alignment: 'center',
-                            spacing: { before: 400, after: 400 }
-                        }),
-                        new Table({
-                            width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                            rows: await createTableRows(redTableData, TABLE_TYPE.RED),
-                            tableProperties: {
-                                width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                                layout: TableLayoutType.FIXED,
-                                margins: {
-                                    top: 0,
-                                    bottom: 0,
-                                    right: TABLE_CONSTANTS.MARGINS.RIGHT,
-                                    left: TABLE_CONSTANTS.MARGINS.LEFT
-                                },
-                                borders: {
-                                    top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
-                                    bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
-                                    left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
-                                    right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
-                                    insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED },
-                                    insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.RED }
-                                }
-                            }
-                        }),
-                        new Paragraph({
-                            children: [
-                                new TextRun({
-                                    text: TABLE_LABELS.ORIGINAL_SIGNATURES,
-                                    size: 32,
-                                    color: '000000',
-                                    bold: true
-                                })
-                            ],
-                            alignment: 'center',
-                            spacing: { after: 400, before: 400 }
-                        }),
-                        new Table({
-                            width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                            rows: await createTableRows(greenTableData, TABLE_TYPE.GREEN),
-                            tableProperties: {
-                                layout: TableLayoutType.FIXED,
-                                width: { size: TABLE_CONSTANTS.TABLE_WIDTH, type: WidthType.DXA },
-                                borders: {
-                                    top: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
-                                    bottom: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
-                                    left: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
-                                    right: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
-                                    insideHorizontal: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN },
-                                    insideVertical: { style: TABLE_CONSTANTS.BORDER_STYLE, size: TABLE_CONSTANTS.BORDER_SIZE, color: TABLE_CONSTANTS.COLORS.GREEN }
-                                }
-                            }
-                        })
-                    ]
+                    children: sectionChildren
                 }]
             });
 
@@ -344,7 +369,12 @@ const WordExport = ({ greenTableData, redTableData }) => {
             console.log('Blob MIME type:', blob.type);
             
             const date = new Date().toISOString().split('T')[0];
-            const safeTitle = (documentTitle || 'tables-export').replace(/[^a-zA-Z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'export';
+            const rawTitle = (documentTitle || 'tables-export').trim();
+            const safeTitle = rawTitle
+                .replace(/[\\/:*?"<>|]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '') || 'export';
             const fileName = safeTitle + '-' + date + '.docx';
             
             const triggerDownload = () => {

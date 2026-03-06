@@ -21,8 +21,7 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                     number: item ? (item.number || index + 1) : Infinity
                 }))
                 .sort((a, b) => a.number - b.number)
-                .map(item => item.index);
-            
+                .map((item) => item.index);
             onSort(sortedIndices);
         }
     };
@@ -62,7 +61,7 @@ const ImageTable = ({ data, color, onUpdateImageNumber, onSort, onRemoveImage, o
                                     fontWeight: 500
                                 }}
                             >
-                                סדר לפי מספר
+                                {'סדר לפי מספר'}
                             </button>
                         </div>
                     </th>

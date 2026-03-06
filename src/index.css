@@ -199,11 +199,11 @@ body {
 }
 
 .table-section.table-red {
-  border: 1px solid rgba(185, 28, 28, 0.25);
+  border: 3px solid rgba(185, 28, 28, 0.5);
 }
 
 .table-section.table-green {
-  border: 1px solid rgba(22, 101, 52, 0.25);
+  border: 3px solid rgba(22, 101, 52, 0.5);
 }
 
 .table-section {
@@ -212,15 +212,15 @@ body {
 }
 
 .table-section.table-red:hover {
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06), 0 0 0 2px rgba(185, 28, 28, 0.35);
-  border-color: rgba(185, 28, 28, 0.5);
-  border-width: 2px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06), 0 0 0 2px rgba(185, 28, 28, 0.4);
+  border-color: rgba(185, 28, 28, 0.65);
+  border-width: 4px;
 }
 
 .table-section.table-green:hover {
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06), 0 0 0 2px rgba(22, 101, 52, 0.35);
-  border-color: rgba(22, 101, 52, 0.5);
-  border-width: 2px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06), 0 0 0 2px rgba(22, 101, 52, 0.4);
+  border-color: rgba(22, 101, 52, 0.65);
+  border-width: 4px;
 }
 
 .table-section-selected {
@@ -229,13 +229,13 @@ body {
 
 .table-section.table-red.table-section-selected {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04), 0 0 0 2px rgba(185, 28, 28, 0.4);
-  border-color: rgba(185, 28, 28, 0.45);
-  border-width: 2px;
+  border-color: rgba(185, 28, 28, 0.6);
+  border-width: 4px;
 }
 
 .table-section.table-green.table-section-selected {
-  border-color: rgba(22, 101, 52, 0.45);
-  border-width: 2px;
+  border-color: rgba(22, 101, 52, 0.6);
+  border-width: 4px;
 }
 
 .table-section thead th {
@@ -253,16 +253,16 @@ body {
 }
 
 .image-cell {
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   transition: background-color 0.2s ease;
 }
 
 .image-cell-red {
-  border-color: rgba(185, 28, 28, 0.15);
+  border-color: rgba(185, 28, 28, 0.35);
 }
 
 .image-cell-green {
-  border-color: rgba(22, 101, 52, 0.15);
+  border-color: rgba(22, 101, 52, 0.35);
 }
 
 .image-cell:hover {

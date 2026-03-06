@@ -110,9 +110,7 @@ export const STORAGE_KEY = 'word-table-app-data';
 // Export validation (Hebrew)
 export const EXPORT_MESSAGES = {
     MISSING_TITLE: 'נא להזין שם מסמך',
-    MISSING_IMAGES: 'אין תמונות לייצוא. הוסף תמונות תחילה.',
-    EMPTY_RED_TABLE: 'נא למלא את טבלת חתימות במחלוקת',
-    EMPTY_GREEN_TABLE: 'נא למלא את טבלת חתימות מקוריות'
+    MISSING_IMAGES: 'נא למלא לפחות טבלה אחת בתמונות'
 };
 
 // File input labels (Hebrew)
