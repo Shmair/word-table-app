@@ -7,26 +7,21 @@ const TABLE_OPTIONS = [
     { value: TABLE_TYPE.GREEN, label: TABLE_LABELS.ORIGINAL_SIGNATURES }
 ];
 
-const FileUpload = ({ onFileInsert, greenTableData, redTableData, tableChoice, onTableChoiceChange }) => {
+// The target table is picked by clicking it, so this only reports which one is active.
+const FileUpload = ({ onFileInsert, greenTableData, redTableData, tableChoice }) => {
     const [selectedFiles, setSelectedFiles] = useState(null);
     const [readError, setReadError] = useState(null);
     const [isInserting, setIsInserting] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleFileChange = (event) => {
-        const files = event.target.files;
-        setSelectedFiles(files && files.length > 0 ? files : null);
-        setReadError(null);
+        insertFiles(event.target.files);
     };
 
     const handleDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const files = e.dataTransfer?.files;
-        if (files && files.length > 0) {
-            setSelectedFiles(files);
-            setReadError(null);
-        }
+        insertFiles(e.dataTransfer?.files);
     };
 
     const handleDragOver = (e) => {
@@ -34,21 +29,19 @@ const FileUpload = ({ onFileInsert, greenTableData, redTableData, tableChoice, o
         e.stopPropagation();
     };
 
-    const handleTableChange = (event) => {
-        onTableChoiceChange?.(event.target.value);
-    };
+    // Files go straight into the selected table -- picking them is the whole intent, so there
+    // is nothing left for a separate confirm step to do.
+    const insertFiles = (files) => {
+        if (!files || files.length === 0) return;
 
-    const handleInsert = () => {
-        if (!selectedFiles || selectedFiles.length === 0) {
-            alert('בחר קבצים תחילה');
-            return;
-        }
+        setSelectedFiles(files);
         setIsInserting(true);
         setReadError(null);
 
-        const fileArray = Array.from(selectedFiles).filter((f) => f && f instanceof Blob && (f.type?.startsWith('image/') || !f.type));
+        const fileArray = Array.from(files).filter((f) => f && f instanceof Blob && (f.type?.startsWith('image/') || !f.type));
         if (fileArray.length === 0) {
             setIsInserting(false);
+            setSelectedFiles(null);
             alert('לא נמצאו תמונות');
             return;
         }
@@ -66,16 +59,21 @@ const FileUpload = ({ onFileInsert, greenTableData, redTableData, tableChoice, o
             .then((imageData) => {
                 const processed = imageData.map((img, idx) => ({ ...img, number: idx + 1 }));
                 onFileInsert(processed, tableChoice ?? TABLE_OPTIONS[0].value);
-                setSelectedFiles(null);
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                }
             })
             .catch((err) => {
                 console.error('File read error:', err);
                 setReadError(err?.message || err?.toString?.() || 'נסה שוב');
             })
-            .finally(() => setIsInserting(false));
+            .finally(() => {
+                setIsInserting(false);
+                // Clear on failure too: the status line only shows the error once nothing is
+                // selected, and an unchanged input value fires no change event, which would
+                // make retrying the very same file impossible.
+                setSelectedFiles(null);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+            });
     };
 
     return (
@@ -115,20 +113,9 @@ const FileUpload = ({ onFileInsert, greenTableData, redTableData, tableChoice, o
                     </span>
                 )}
             </div>
-            <select
-                value={tableChoice ?? TABLE_OPTIONS[0].value}
-                onChange={handleTableChange}
-                aria-label="טבלה להכנסת תמונות"
-            >
-                {TABLE_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
-            </select>
-            <button type="button" className="btn btn-secondary" onClick={handleInsert} disabled={isInserting}>
-                {isInserting ? 'טוען...' : 'הכנס לטבלה'}
-            </button>
+            <span className="file-status">
+                {TABLE_OPTIONS.find((o) => o.value === (tableChoice ?? TABLE_OPTIONS[0].value))?.label}
+            </span>
             <WordExport greenTableData={greenTableData} redTableData={redTableData} />
         </div>
     );

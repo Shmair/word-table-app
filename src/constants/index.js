@@ -3,12 +3,18 @@ export const TABLE_CONSTANTS = {
     CELLS_PER_ROW: 2,
     BORDER_SIZE: 25,
     BORDER_STYLE: 'single',
-    CELL_WIDTH: 4500,
-    TABLE_WIDTH: 9000,
-    GRID_WIDTH: 100,
+    // A4 (11906 twips) minus the page margins on both sides -> table fills the printable width
+    CELL_WIDTH: 5230,
+    // Minimum row height ("atLeast"), so a row is the taller of this and its content. Landscape
+    // photos are capped by CELL_WIDTH and end up ~260px tall, so this adds a little padding
+    // around them; portrait photos exceed it and simply grow the row.
+    CELL_HEIGHT: 5400,
+    TABLE_WIDTH: 10460,
     MARGINS: {
         LEFT: 10,
-        RIGHT: 10
+        RIGHT: 10,
+        TOP: 320,      // padding inside each cell, above the image
+        BOTTOM: 160    // and below the number
     },
     COLORS: {
         GREEN: '275114',
@@ -16,10 +22,23 @@ export const TABLE_CONSTANTS = {
         BLACK: '000000'
     },
     IMAGE_SIZE: {
-        maxWidth: 300,
-        maxHeight: 300
+        maxWidth: 345,   // px; 5230 twips of cell width is ~348px at 96dpi
+        maxHeight: 350   // tallest that still fits two rows plus the heading on one page
     },
-    FONT_SIZE: 30  // 16px ≈ 12pt, docx uses half-points
+    FONT_SIZE: 30,  // 16px ≈ 12pt, docx uses half-points
+    TITLE_FONT_SIZE: 64,      // document title (32pt)
+    HEADING_FONT_SIZE: 48,    // section headings (24pt)
+    PAGE_MARGIN: 720,         // 0.5" page margins (twips)
+    SPACING: {
+        TITLE_AFTER: 120,
+        HEADING_BEFORE: 0,
+        HEADING_AFTER: 240,   // breathing room between a section heading and its table
+        IMAGE_BEFORE: 60,
+        IMAGE_AFTER: 60,
+        NUMBER_BEFORE: 60,
+        NUMBER_AFTER: 60,
+        DATE_AFTER: 120
+    }
 };
 // Table Types
 export const TABLE_TYPE = {
@@ -38,25 +57,6 @@ export const COLORS = {
     RED: 'red',
     GREEN: 'green',
     WHITE: 'white'
-};
-
-// UI Theme (for toolbar, buttons, inputs)
-export const THEME = {
-    primary: '#275114',
-    primaryHover: '#1e3d0f',
-    primaryLight: '#e8f0e6',
-    surface: '#ffffff',
-    surfaceAlt: '#f7f9f6',
-    border: '#d0d9cc',
-    borderFocus: '#275114',
-    text: '#1a1a1a',
-    textMuted: '#5c5c5c',
-    radius: '8px',
-    radiusSm: '6px',
-    shadow: '0 2px 8px rgba(39, 81, 20, 0.08)',
-    shadowHover: '0 4px 12px rgba(39, 81, 20, 0.12)',
-    transition: '0.2s ease',
-    fontFamily: '"Segoe UI", "Helvetica Neue", Arial, sans-serif'
 };
 
 // Styles
@@ -91,24 +91,25 @@ export const STYLES = {
     }
 };
 
-// Document Settings
-export const DOCUMENT = {
-    BORDER_STYLE: TABLE_CONSTANTS.BORDER_STYLE,
-    COLORS: TABLE_CONSTANTS.COLORS
-};
-
 // Proofing language for Word (bidi = complex script / RTL)
 export const LANG_HEBREW = { bidi: 'he-IL' };
 
-// Image Settings
-export const IMAGE = {
-    DATA_URL_PREFIX: 'data:',
-    MIME_TYPE: 'image/jpeg',
-    CROSS_ORIGIN: 'anonymous'
-};
-
 // Local storage key for persisting table data
 export const STORAGE_KEY = 'word-table-app-data';
+
+// The document title is a short string, so it lives in localStorage rather than IndexedDB.
+export const TITLE_STORAGE_KEY = 'word-table-app-title';
+
+// Export formats. The value doubles as the file extension.
+export const EXPORT_FORMAT = {
+    DOCX: 'docx',
+    PDF: 'pdf'
+};
+
+export const EXPORT_FORMAT_LABELS = {
+    [EXPORT_FORMAT.DOCX]: 'Word (docx)',
+    [EXPORT_FORMAT.PDF]: 'PDF'
+};
 
 // Export validation (Hebrew)
 export const EXPORT_MESSAGES = {
@@ -123,11 +124,6 @@ export const FILE_INPUT_LABELS = {
     FILES_SELECTED: (n) => `${n} קבצים נבחרו`,
     DRAG_HINT: 'או גרור קבצים לכאן',
     READ_ERROR_HINT: 'נסה לגרור קבצים במקום, או להעתיק לתיקייה מקומית (לא OneDrive)'
-};
-
-// Element IDs
-export const DOM_ELEMENTS = {
-    ROOT: 'root'
 };
 
 // Sizes

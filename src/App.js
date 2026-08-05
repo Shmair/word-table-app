@@ -1,36 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import ColorTable from './components/ColorTable';
 import FileInsert from './components/FileInsert';
-import { TABLE_TYPE, COLORS, STYLES, STORAGE_KEY } from './constants';
-
-const loadFromStorage = () => {
-    try {
-        const cached = localStorage.getItem(STORAGE_KEY);
-        if (cached) {
-            const { green, red } = JSON.parse(cached);
-            return { green: green || [], red: red || [] };
-        }
-    } catch (e) { /* ignore */ }
-    return { green: [], red: [] };
-};
+import { TABLE_TYPE, COLORS, STYLES } from './constants';
+import { loadTables, saveTables, readLocalStorage, isEmpty } from './utils/imageStore';
+import { renumberSequentially } from './utils/tableUtils';
 
 const App = () => {
-    const [greenTableData, setgreenTableData] = useState(() => loadFromStorage().green);
-    const [redTableData, setRedTableData] = useState(() => loadFromStorage().red);
+    // Seed synchronously from localStorage so a small gallery paints immediately; IndexedDB
+    // holds the authoritative copy and overwrites this once it has loaded.
+    const [greenTableData, setgreenTableData] = useState(() => renumberSequentially(readLocalStorage().green));
+    const [redTableData, setRedTableData] = useState(() => renumberSequentially(readLocalStorage().red));
     const [tableChoice, setTableChoice] = useState(TABLE_TYPE.RED);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                green: greenTableData,
-                red: redTableData
-            }));
-        } catch (e) {
-            if (e.name === 'QuotaExceededError') {
-                console.warn('Storage full: images not persisted. Try removing some.');
-            }
-        }
-    }, [greenTableData, redTableData]);
+        let cancelled = false;
+        loadTables()
+            .then((stored) => {
+                if (cancelled || isEmpty(stored)) return;
+                // Close any gaps left by earlier add/remove cycles, so labels read 1..N.
+                // Keep anything already added while this load was in flight -- dropping files
+                // straight after opening the app must not be undone by the load landing late.
+                setgreenTableData((current) => (current.length ? current : renumberSequentially(stored.green)));
+                setRedTableData((current) => (current.length ? current : renumberSequentially(stored.red)));
+            })
+            .catch((e) => console.warn('Could not load saved images:', e))
+            .finally(() => { if (!cancelled) setIsLoaded(true); });
+        return () => { cancelled = true; };
+    }, []);
+
+    useEffect(() => {
+        // Skip until the initial load settles, otherwise the empty starting state would
+        // overwrite what is on disk.
+        if (!isLoaded) return;
+        saveTables({ green: greenTableData, red: redTableData })
+            .then((ok) => {
+                if (!ok) console.warn('Images could not be saved: storage is full.');
+            })
+            .catch((e) => console.warn('Could not save images:', e));
+    }, [greenTableData, redTableData, isLoaded]);
 
     const handleUpdateImageNumber = (index, number, tableType) => {
         if (tableType === TABLE_TYPE.GREEN) {
@@ -76,33 +84,14 @@ const App = () => {
         const list = Array.isArray(imageData) ? imageData : [];
         if (list.length === 0) return;
 
-        const processedImageData = list.map((img, idx) => ({
-            ...img,
-            number: img.number != null ? img.number : idx + 1
-        }));
+        const append = (prevData) => renumberSequentially([...prevData, ...list]);
 
         if (tableType === TABLE_TYPE.GREEN) {
-            setgreenTableData((prevData) => {
-                const startNumber = prevData.length > 0
-                    ? Math.max(...prevData.filter((item) => item && item.number).map((item) => item.number || 0)) + 1
-                    : 1;
-                return [...prevData, ...processedImageData.map((img, idx) => ({
-                    ...img,
-                    number: startNumber + idx
-                }))];
-            });
+            setgreenTableData(append);
         } else if (tableType === TABLE_TYPE.RED) {
-            setRedTableData((prevData) => {
-                const startNumber = prevData.length > 0
-                    ? Math.max(...prevData.filter((item) => item && item.number).map((item) => item.number || 0)) + 1
-                    : 1;
-                return [...prevData, ...processedImageData.map((img, idx) => ({
-                    ...img,
-                    number: startNumber + idx
-                }))];
-            });
+            setRedTableData(append);
         }
-    };                  
+    };
     return (
         <div className="app-container" style={{ padding: STYLES.PADDING.DEFAULT, maxWidth: 1300, margin: '0 auto', direction: 'rtl' }}>
             <h1 className="app-title">חתימות</h1>
@@ -111,7 +100,6 @@ const App = () => {
                 greenTableData={greenTableData}
                 redTableData={redTableData}
                 tableChoice={tableChoice}
-                onTableChoiceChange={setTableChoice}
             />
              <ColorTable 
                 data={redTableData}
@@ -132,7 +120,7 @@ const App = () => {
                         return newData;
                     });
                 }}
-                onRemoveImage={(index) => setRedTableData(prev => prev.filter((_, i) => i !== index))}
+                onRemoveImage={(index) => setRedTableData(prev => renumberSequentially(prev.filter((_, i) => i !== index)))}
                 onUpdateImageNumber={(index, number) => handleUpdateImageNumber(index, number, TABLE_TYPE.RED)}
                 onSort={(sortedIndices) => handleSort(sortedIndices, TABLE_TYPE.RED)}
             />
@@ -155,7 +143,7 @@ const App = () => {
                         return newData;
                     });
                 }}
-                onRemoveImage={(index) => setgreenTableData(prev => prev.filter((_, i) => i !== index))}
+                onRemoveImage={(index) => setgreenTableData(prev => renumberSequentially(prev.filter((_, i) => i !== index)))}
                 onUpdateImageNumber={(index, number) => handleUpdateImageNumber(index, number, TABLE_TYPE.GREEN)}
                 onSort={(sortedIndices) => handleSort(sortedIndices, TABLE_TYPE.GREEN)}
             />

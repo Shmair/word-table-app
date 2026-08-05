@@ -27,6 +27,15 @@
       "react-app"
     ]
   },
+  "jest": {
+    "moduleNameMapper": {
+      "^@react-pdf/pdfkit$": "<rootDir>/node_modules/@react-pdf/pdfkit/lib/pdfkit.browser.js"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\](?!@react-pdf|fontkit|restructure|unicode-|dfa|clone|brotli|tiny-inflate|pako)[^/\\\\]+[/\\\\].+\\.(js|mjs|jsx|ts|tsx)$",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ]
+  },
   "browserslist": {
     "production": [
       ">0.2%",

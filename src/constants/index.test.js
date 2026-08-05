@@ -16,16 +16,69 @@ describe('constants', () => {
         it('has expected structure', () => {
             expect(TABLE_CONSTANTS.CELLS_PER_ROW).toBe(2);
             expect(TABLE_CONSTANTS.BORDER_SIZE).toBe(25);
-            expect(TABLE_CONSTANTS.CELL_WIDTH).toBe(4500);
-            expect(TABLE_CONSTANTS.TABLE_WIDTH).toBe(9000);
+            expect(TABLE_CONSTANTS.CELL_WIDTH).toBe(5230);
+            expect(TABLE_CONSTANTS.TABLE_WIDTH).toBe(10460);
+        });
+        it('sizes the table to fill the printable width of an A4 page', () => {
+            const A4_WIDTH = 11906;
+            const printable = A4_WIDTH - 2 * TABLE_CONSTANTS.PAGE_MARGIN;
+            expect(TABLE_CONSTANTS.TABLE_WIDTH).toBeLessThanOrEqual(printable);
+            expect(TABLE_CONSTANTS.TABLE_WIDTH).toBeGreaterThan(printable - 100);
+            expect(TABLE_CONSTANTS.CELL_WIDTH * TABLE_CONSTANTS.CELLS_PER_ROW).toBe(TABLE_CONSTANTS.TABLE_WIDTH);
         });
         it('has color hex values', () => {
             expect(TABLE_CONSTANTS.COLORS.GREEN).toBe('275114');
             expect(TABLE_CONSTANTS.COLORS.RED).toBe('C00000');
         });
         it('has image size limits', () => {
-            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxWidth).toBe(300);
-            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxHeight).toBe(300);
+            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxWidth).toBe(345);
+            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxHeight).toBe(350);
+        });
+        it('fills the page height without spilling a second page', () => {
+            const A4_HEIGHT = 16838;
+            const TWIPS_PER_PX = 15;
+            const halfPointsToTwips = (hp) => hp * 10;
+            const { SPACING: S, MARGINS: M } = TABLE_CONSTANTS;
+
+            const printable = A4_HEIGHT - 2 * TABLE_CONSTANTS.PAGE_MARGIN;
+            const content = TABLE_CONSTANTS.IMAGE_SIZE.maxHeight * TWIPS_PER_PX
+                + M.TOP + M.BOTTOM
+                + S.IMAGE_BEFORE + S.IMAGE_AFTER
+                + S.NUMBER_BEFORE + S.NUMBER_AFTER
+                + halfPointsToTwips(TABLE_CONSTANTS.FONT_SIZE);
+            // CELL_HEIGHT is an "atLeast" rule: the row is the taller of the two.
+            const rowHeight = Math.max(TABLE_CONSTANTS.CELL_HEIGHT, content);
+            const heading = halfPointsToTwips(TABLE_CONSTANTS.FONT_SIZE) + S.DATE_AFTER
+                + halfPointsToTwips(TABLE_CONSTANTS.TITLE_FONT_SIZE) + S.TITLE_AFTER
+                + halfPointsToTwips(TABLE_CONSTANTS.HEADING_FONT_SIZE) + S.HEADING_AFTER;
+
+            // Worst case is a portrait photo, which hits maxHeight and grows the row.
+            const used = 2 * rowHeight + heading;
+            expect(used).toBeLessThanOrEqual(printable);
+            // ...and large enough that the page is not left half empty
+            expect(used).toBeGreaterThan(printable * 0.85);
+        });
+
+        it('pads a landscape photo without stranding it in a huge cell', () => {
+            const TWIPS_PER_PX = 15;
+            const { MARGINS: M, SPACING: S } = TABLE_CONSTANTS;
+            // A 4:3 landscape photo is limited by the cell width, not maxHeight.
+            const landscapeBlock = (TABLE_CONSTANTS.IMAGE_SIZE.maxWidth * 3 / 4) * TWIPS_PER_PX
+                + M.TOP + M.BOTTOM
+                + S.IMAGE_BEFORE + S.IMAGE_AFTER
+                + S.NUMBER_BEFORE + S.NUMBER_AFTER
+                + TABLE_CONSTANTS.FONT_SIZE * 10;
+
+            // Some slack, so the border does not sit flush against the picture...
+            expect(TABLE_CONSTANTS.CELL_HEIGHT).toBeGreaterThan(landscapeBlock);
+            // ...but not so much that the photo floats in a mostly empty box.
+            expect(TABLE_CONSTANTS.CELL_HEIGHT).toBeLessThan(landscapeBlock * 1.25);
+        });
+
+        it('keeps images inside the cell they sit in', () => {
+            const TWIPS_PER_PX = 15;   // 1440 twips per inch / 96 px per inch
+            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxWidth * TWIPS_PER_PX).toBeLessThan(TABLE_CONSTANTS.CELL_WIDTH);
+            expect(TABLE_CONSTANTS.IMAGE_SIZE.maxHeight * TWIPS_PER_PX).toBeLessThan(TABLE_CONSTANTS.CELL_HEIGHT);
         });
     });
 
